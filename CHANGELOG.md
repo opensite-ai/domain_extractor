@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2025-10-31
+
+### Updated release action workflow
+
+Streamlined release workflow and GitHub Action CI.
+
 ## [0.1.2] - 2025-10-31
 
 ### Performance Enhancements
@@ -16,17 +22,20 @@ This release focuses on comprehensive performance optimizations for high-through
 #### Core Optimizations
 
 - **Frozen String Constants**: Eliminated repeated string allocation by introducing frozen constants throughout the codebase
+
   - Added `HTTPS_SCHEME`, `HTTP_SCHEME` constants in Normalizer module
   - Added `DOT`, `COLON`, `BRACKET_OPEN` constants in Validators module
   - Added `EMPTY_HASH` constant in Result module
   - **Impact**: 60% reduction in string allocations per parse
 
 - **Fast Path Detection**: Implemented character-based pre-checks before expensive regex operations
+
   - Normalizer: Check `string.start_with?(HTTPS_SCHEME, HTTP_SCHEME)` before regex matching
   - Validators: Check for dots/colons before running IPv4/IPv6 regex patterns
   - **Impact**: 2-3x faster for common cases (pre-normalized URLs, non-IP hostnames)
 
 - **Immutable Result Objects**: Froze result hashes to prevent mutation and enable compiler optimizations
+
   - Result hashes now frozen with `.freeze` call
   - Thread-safe without defensive copying
   - **Impact**: Better cache locality, prevents accidental mutations
@@ -41,22 +50,26 @@ This release focuses on comprehensive performance optimizations for high-through
 Verified performance metrics on Ruby 3.3.10:
 
 **Single URL Parsing (1000 iterations average):**
+
 - Simple domains (`example.com`): 15-31μs per URL
 - Complex multi-part TLDs (`blog.example.co.uk`): 18-19μs per URL
 - IP addresses (`192.168.1.1`): 3-7μs per URL (fast path rejection)
 - Full URLs with query params: 18-20μs per URL
 
 **Batch Processing Throughput:**
+
 - 100 URLs: 73,421 URLs/second
 - 1,000 URLs: 60,976 URLs/second
 - 10,000 URLs: 53,923 URLs/second
 
 **Memory Profile:**
+
 - Memory overhead: <100KB (Public Suffix List cache)
 - Per-parse allocation: ~200 bytes
 - Zero retained objects after garbage collection
 
 **Performance Improvements vs Baseline:**
+
 - Parse time: 2-3x faster (50μs → 15-30μs)
 - Throughput: 2.5x faster (20k → 50k+ URLs/sec)
 - String allocations: 60% reduction (10 → 4 per parse)
@@ -65,6 +78,7 @@ Verified performance metrics on Ruby 3.3.10:
 #### Thread Safety
 
 All optimizations maintain thread safety:
+
 - Stateless module-based architecture
 - Frozen constants are immutable
 - No shared mutable state
@@ -87,6 +101,7 @@ All optimizations maintain thread safety:
 ### Alignment with OpenSite ECOSYSTEM_GUIDELINES.md
 
 All optimizations follow OpenSite platform principles:
+
 - **Performance-first**: Sub-30μs parse times, 50k+ URLs/sec throughput
 - **Minimal allocations**: Frozen constants, immutable results, pre-compiled patterns
 - **Tree-shakable design**: Module-based architecture, no global state
@@ -106,6 +121,7 @@ result = DomainExtractor.parse('https://example.com')
 ### Production Deployment
 
 Ready for high-throughput production use:
+
 - URL processing pipelines
 - Web crawlers and scrapers
 - Analytics systems
