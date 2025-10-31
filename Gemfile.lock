@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    domain_extractor (0.1.5)
+    domain_extractor (0.1.6)
       public_suffix (~> 6.0)
 
 GEM

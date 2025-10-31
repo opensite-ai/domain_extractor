@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2025-10-31
+
+### Integrate Rakefile for Release and Task Workflow Refactors
+
+Refactored release action workflow along with internal task automation with Rakefile build out.
+
 ## [0.1.4] - 2025-10-31
 
 ### Updated release action workflow
