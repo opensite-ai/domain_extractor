@@ -26,10 +26,10 @@ Gem::Specification.new do |spec|
   spec.license = 'MIT'
   spec.metadata = {
     'source_code_uri' => 'https://github.com/opensite-ai/domain_extractor',
-    'changelog_uri' => 'https://github.com/opensite-ai/domain_extractor/blob/main/CHANGELOG.md',
+    'changelog_uri' => 'https://github.com/opensite-ai/domain_extractor/blob/master/CHANGELOG.md',
     'documentation_uri' => 'https://rubydoc.info/gems/domain_extractor',
     'bug_tracker_uri' => 'https://github.com/opensite-ai/domain_extractor/issues',
-    'homepage_uri' => 'https://opensite.ai',
+    'homepage_uri' => 'https://github.com/opensite-ai/domain_extractor',
     'wiki_uri' => 'https://docs.devguides.com/domain_extractor',
     'rubygems_mfa_required' => 'true',
     'allowed_push_host' => 'https://rubygems.org'

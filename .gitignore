@@ -1,12 +1,74 @@
-/.bundle/
-/.yardoc
-/Gemfile.lock
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
+# Gem build artifacts
+*.gem
+*.rbc
+pkg/
+doc/
+rdoc/
 
-# rspec failure tracking
+# Bundler
+.bundle/
+vendor/bundle/
+vendor/cache/
+
+# Test artifacts
+coverage/
 .rspec_status
+spec/reports/
+test/tmp/
+test/version_tmp/
+
+# SimpleCov
+coverage.data
+.resultset.json
+
+# YARD
+.yardoc/
+_yardoc/
+doc/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE/Editor files
+.vscode/
+.idea/
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ruby version managers
+.ruby-version
+.ruby-gemset
+.rvmrc
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+*.pid
+
+# Development/debugging
+.byebug_history
+*.stackdump
+
+# CI/CD local artifacts (if you test workflows locally)
+.github/workflows/*.local
+
+# Profiling/benchmarking
+benchmark/tmp/
