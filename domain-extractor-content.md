@@ -162,187 +162,7 @@ end
 **File: `README.md`**
 
 ```markdown
-# DomainExtractor
 
-[![Gem Version](https://badge.fury.io/rb/domain_extractor.svg)](https://badge.fury.io/rb/domain_extractor)
-[![Build Status](https://github.com/yourusername/domain_extractor/workflows/CI/badge.svg)](https://github.com/yourusername/domain_extractor/actions)
-[![Code Climate](https://codeclimate.com/github/yourusername/domain_extractor/badges/gpa.svg)](https://codeclimate.com/github/yourusername/domain_extractor)
-
-A lightweight, robust Ruby library for parsing URLs and extracting domain components with **accurate multi-part TLD support**. Perfect for web scraping, analytics, URL manipulation, and domain analysis.
-
-## Why DomainExtractor?
-
-✅ **Accurate TLD Parsing** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
-✅ **Nested Subdomain Support** - Correctly parses multi-level subdomains (api.staging.example.com)
-✅ **Smart URL Normalization** - Automatically handles URLs with or without schemes
-✅ **Query Parameter Extraction** - Parse query strings into structured hashes
-✅ **Batch Processing** - Parse multiple URLs efficiently
-✅ **IP Address Detection** - Identifies and handles IPv4 and IPv6 addresses
-✅ **Zero Configuration** - Works out of the box with sensible defaults
-✅ **Well-Tested** - Comprehensive test suite covering edge cases
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'domain_extractor'
-```
-
-And then execute:
-
-```bash
-$ bundle install
-```
-
-Or install it yourself:
-
-```bash
-$ gem install domain_extractor
-```
-
-## Quick Start
-
-```ruby
-require 'domain_extractor'
-
-# Parse a URL
-result = DomainExtractor.parse('https://www.example.co.uk/path?query=value')
-
-result[:subdomain]    # => 'www'
-result[:domain]       # => 'example'
-result[:tld]          # => 'co.uk'
-result[:root_domain]  # => 'example.co.uk'
-result[:host]         # => 'www.example.co.uk'
-```
-
-## Usage Examples
-
-### Basic Domain Parsing
-
-```ruby
-# Parse a simple domain
-DomainExtractor.parse('example.com')
-# => { subdomain: nil, domain: 'example', tld: 'com', ... }
-
-# Parse domain with subdomain
-DomainExtractor.parse('blog.example.com')
-# => { subdomain: 'blog', domain: 'example', tld: 'com', ... }
-```
-
-### Multi-Part TLD Support
-
-```ruby
-# UK domain
-DomainExtractor.parse('www.bbc.co.uk')
-# => { subdomain: 'www', domain: 'bbc', tld: 'co.uk', ... }
-
-# Australian domain
-DomainExtractor.parse('shop.example.com.au')
-# => { subdomain: 'shop', domain: 'example', tld: 'com.au', ... }
-```
-
-### Nested Subdomains
-
-```ruby
-DomainExtractor.parse('api.staging.example.com')
-# => { subdomain: 'api.staging', domain: 'example', tld: 'com', ... }
-```
-
-### Query Parameter Parsing
-
-```ruby
-params = DomainExtractor.parse_query_params('?utm_source=google&page=1')
-# => { 'utm_source' => 'google', 'page' => '1' }
-```
-
-### Batch URL Processing
-
-```ruby
-urls = ['https://example.com', 'https://blog.example.org']
-results = DomainExtractor.parse_batch(urls)
-```
-
-## API Reference
-
-### `DomainExtractor.parse(url_string)`
-
-Parses a URL string and extracts domain components.
-
-**Returns:** Hash with keys `:subdomain`, `:domain`, `:tld`, `:root_domain`, `:host`, `:path` or `nil`
-
-### `DomainExtractor.parse_batch(urls)`
-
-Parses multiple URLs efficiently.
-
-**Returns:** Array of parsed results
-
-### `DomainExtractor.parse_query_params(query_string)`
-
-Parses a query string into a hash of parameters.
-
-**Returns:** Hash of query parameters
-
-## Use Cases
-
-**Web Scraping**
-```ruby
-urls = scrape_page_links(page)
-domains = urls.map { |url| DomainExtractor.parse(url)&.dig(:root_domain) }.compact.uniq
-```
-
-**Analytics & Tracking**
-```ruby
-referrer = request.referrer
-parsed = DomainExtractor.parse(referrer)
-track_event('page_view', source_domain: parsed[:root_domain]) if parsed
-```
-
-**Domain Validation**
-```ruby
-def internal_link?(url, base_domain)
-  parsed = DomainExtractor.parse(url)
-  parsed && parsed[:root_domain] == base_domain
-end
-```
-
-## Performance
-
-- **Single URL parsing**: ~0.0001s per URL
-- **Batch processing**: ~0.01s for 100 URLs
-- **Memory efficient**: Minimal object allocation
-- **Thread-safe**: Can be used in concurrent environments
-
-## Comparison with Alternatives
-
-| Feature | DomainExtractor | Addressable | URI (stdlib) |
-|---------|----------------|-------------|--------------|
-| Multi-part TLD support | ✅ | ❌ | ❌ |
-| Subdomain extraction | ✅ | ❌ | ❌ |
-| Domain component separation | ✅ | ❌ | ❌ |
-| Lightweight | ✅ | ❌ | ✅ |
-
-## Requirements
-
-- Ruby 2.7.0 or higher
-- public_suffix gem (~> 6.0)
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/yourusername/domain_extractor.
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Acknowledgments
-
-- Built on Ruby's standard [URI library](https://ruby-doc.org/stdlib/libdoc/uri/rdoc/URI.html)
-- Uses the [public_suffix gem](https://github.com/weppos/publicsuffix-ruby) for accurate TLD parsing
-
----
-
-Made with ❤️ by [OpenSite AI](https://opensite.ai)
 ```
 
 ---
@@ -364,6 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-10-31
 
 ### Added
+
 - Initial release of DomainExtractor
 - Core `parse` method for extracting domain components from URLs
 - Support for multi-part TLDs using PublicSuffix gem
@@ -377,6 +198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full documentation and usage examples
 
 ### Features
+
 - Extract subdomain, domain, TLD, root_domain, and host from URLs
 - Handle complex multi-part TLDs (co.uk, com.au, gov.br, etc.)
 - Parse query strings into structured hashes
@@ -422,6 +244,7 @@ SOFTWARE.
 ## GitHub Description & Topics
 
 ### GitHub Repository Description
+
 **Character Limit: 350 characters**
 
 ```
@@ -429,6 +252,7 @@ SOFTWARE.
 ```
 
 ### GitHub Topics (for discoverability)
+
 Add these topics to your GitHub repository:
 
 ```
@@ -457,6 +281,7 @@ seo
 ### Before Publishing Checklist
 
 ✅ **Gemspec Optimization**
+
 - Summary under 70 characters
 - Description under 300 characters
 - All metadata URLs filled in
@@ -464,6 +289,7 @@ seo
 - required_ruby_version set appropriately
 
 ✅ **Documentation**
+
 - Comprehensive README with code examples
 - API reference section
 - Use case examples
@@ -472,6 +298,7 @@ seo
 - Badges for build status, coverage, etc.
 
 ✅ **Code Quality**
+
 - RuboCop configured and passing
 - 100% test coverage with RSpec
 - YARD documentation for all public methods
@@ -479,6 +306,7 @@ seo
 
 ✅ **SEO Keywords to Include**
 Ensure these terms appear naturally in your documentation:
+
 - url parser / url parsing
 - domain parser / domain parsing
 - domain extractor / domain extraction
@@ -509,15 +337,18 @@ git push origin v0.1.0
 ### Post-Publishing
 
 1. **Create GitHub Release**
+
    - Use CHANGELOG content
    - Attach .gem file
    - Highlight key features
 
 2. **Submit to Ruby Toolbox**
+
    - Visit https://www.ruby-toolbox.com
    - Add your gem to relevant categories
 
 3. **Promote on Social Media**
+
    - Twitter/X with #RubyGems #Ruby hashtags
    - Reddit r/ruby community
    - Ruby Weekly newsletter submission
@@ -532,12 +363,14 @@ git push origin v0.1.0
 Your gem's RubyGems.org page will display:
 
 1. **Header Section**
+
    - Gem name (domain_extractor)
    - Summary (70 char limit)
    - Download count
    - Version badge
 
 2. **Links Section** (from metadata)
+
    - Homepage
    - Source code
    - Documentation
@@ -547,10 +380,12 @@ Your gem's RubyGems.org page will display:
    - Wiki
 
 3. **Description Section**
+
    - Full description (300 char)
    - Automatically parsed from gemspec
 
 4. **Dependencies**
+
    - Runtime: public_suffix
    - Development: listed but not installed
 
@@ -577,6 +412,7 @@ Your gem's RubyGems.org page will display:
 This document provides all the optimized content needed to publish `domain_extractor` to RubyGems.org with maximum discoverability and SEO optimization. Key points:
 
 **SEO-Optimized Elements:**
+
 - Gem name matches common search patterns
 - Summary and description include high-volume keywords
 - Comprehensive metadata for all link types
@@ -584,6 +420,7 @@ This document provides all the optimized content needed to publish `domain_extra
 - GitHub topics cover all relevant categories
 
 **Best Practices Followed:**
+
 - Semantic versioning
 - MIT license (most popular)
 - Complete documentation
@@ -593,6 +430,7 @@ This document provides all the optimized content needed to publish `domain_extra
 - Performance metrics
 
 **Search Terms Covered:**
+
 - url parser, url parsing
 - domain parser, domain extraction
 - tld parsing, multi-part tld
