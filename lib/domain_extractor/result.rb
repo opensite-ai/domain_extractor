@@ -3,7 +3,9 @@
 module DomainExtractor
   # Result encapsulates the final parsed attributes and exposes a hash interface.
   module Result
+    # Frozen constants for zero allocation
     EMPTY_PATH = ''
+    EMPTY_HASH = {}.freeze
 
     module_function
 
@@ -16,7 +18,7 @@ module DomainExtractor
         host: attributes[:host],
         path: attributes[:path] || EMPTY_PATH,
         query_params: QueryParams.call(attributes[:query])
-      }
+      }.freeze
     end
 
     def normalize_subdomain(value)

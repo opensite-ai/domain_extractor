@@ -153,10 +153,15 @@ end
 
 ## Performance
 
-- **Single URL parsing**: ~0.0001s per URL
-- **Batch domain extraction**: ~0.01s for 100 URLs
-- **Memory efficient**: Minimal object allocation
-- **Thread-safe**: Can be used in concurrent environments
+Optimized for high-throughput production use:
+
+- **Single URL parsing**: 15-30μs per URL (50,000+ URLs/second)
+- **Batch processing**: 50,000+ URLs/second sustained throughput
+- **Memory efficient**: <100KB overhead, ~200 bytes per parse
+- **Thread-safe**: Stateless modules, safe for concurrent use
+- **Zero-allocation hot paths**: Frozen constants, pre-compiled regex
+
+See [PERFORMANCE.md](https://github.com/opensite-ai/domain_extractor/docs/PERFORMANCE.md) for detailed benchmarks and optimization strategies and benchmark results along with a full set of enhancements made in order to meet the highly performance centric requirements of the OpenSite AI site rendering engine, showcased in the [OPTIMIZATION_SUMMARY.md](https://github.com/opensite-ai/domain_extractor/docs/OPTIMIZATION_SUMMARY.md)
 
 ## Comparison with Alternatives
 
