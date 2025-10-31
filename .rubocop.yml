@@ -1,20 +1,40 @@
 AllCops:
+  # Should match your gemspec's required_ruby_version minimum
+  TargetRubyVersion: 3.2
   NewCops: enable
-  TargetRubyVersion: 3.0.0
+  SuggestExtensions: false
   Exclude:
-    - "bin/**/*"
+    - "vendor/**/*"
+    - "spec/fixtures/**/*"
     - "tmp/**/*"
+    - "bin/**/*"
 
-require:
-  - rubocop-performance
-  - rubocop-rspec
+# Customize your style preferences here
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: single_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+Layout/LineLength:
+  Max: 120
+  AllowedPatterns: ['\A#'] # Allow long comment lines
 
 Metrics/BlockLength:
   Exclude:
-    - "spec/**/*.rb"
+    - "spec/**/*"
+    - "**/*.gemspec"
 
 Metrics/MethodLength:
-  Max: 25
+  Max: 15
+  Exclude:
+    - "spec/**/*"
 
+# Disable some overly strict cops for gems
 Style/Documentation:
+  Enabled: false
+
+Style/AsciiComments:
   Enabled: false

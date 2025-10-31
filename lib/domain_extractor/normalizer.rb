@@ -4,7 +4,7 @@ module DomainExtractor
   # Normalizer ensures URLs include a scheme and removes extraneous whitespace
   # before passing them into the URI parser.
   module Normalizer
-    SCHEME_PATTERN = %r{\A[A-Za-z][A-Za-z0-9+\-.]*://}.freeze
+    SCHEME_PATTERN = %r{\A[A-Za-z][A-Za-z0-9+\-.]*://}
 
     module_function
 

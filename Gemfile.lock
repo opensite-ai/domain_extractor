@@ -35,7 +35,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.6)
-    rubocop (1.81.6)
+    rubocop (1.81.7)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -59,6 +59,9 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
+    rubocop-rake (0.7.1)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.1)
     rubocop-rspec (2.31.0)
       rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
@@ -81,6 +84,7 @@ DEPENDENCIES
   rspec (~> 3.12)
   rubocop (~> 1.50)
   rubocop-performance (~> 1.18)
+  rubocop-rake (~> 0.7.1)
   rubocop-rspec (~> 2.20)
 
 BUNDLED WITH

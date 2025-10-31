@@ -87,11 +87,11 @@ RSpec.describe DomainExtractor do
       it 'extracts multiple query parameters' do
         result = described_class.parse('https://example.com/page?foo=bar&baz=qux&id=123')
 
-        expect(result[:query_params]).to eq({
+        expect(result[:query_params]).to eq(
           'foo' => 'bar',
           'baz' => 'qux',
           'id' => '123'
-        })
+        )
       end
 
       it 'handles URLs with path and multiple query parameters' do
@@ -100,10 +100,10 @@ RSpec.describe DomainExtractor do
         expect(result[:subdomain]).to eq('api')
         expect(result[:root_domain]).to eq('example.com')
         expect(result[:path]).to eq('/v1/users')
-        expect(result[:query_params]).to eq({
+        expect(result[:query_params]).to eq(
           'page' => '2',
           'limit' => '10'
-        })
+        )
       end
 
       it 'handles URLs with empty query string' do
@@ -178,11 +178,11 @@ RSpec.describe DomainExtractor do
     it 'converts multiple parameters to hash' do
       result = described_class.parse_query_params('foo=bar&baz=qux&id=123')
 
-      expect(result).to eq({
+      expect(result).to eq(
         'foo' => 'bar',
         'baz' => 'qux',
         'id' => '123'
-      })
+      )
     end
 
     it 'returns empty hash for nil query' do
@@ -212,11 +212,11 @@ RSpec.describe DomainExtractor do
     it 'handles mixed parameters with and without values' do
       result = described_class.parse_query_params('foo=bar&flag&baz=qux')
 
-      expect(result).to eq({
+      expect(result).to eq(
         'foo' => 'bar',
         'flag' => nil,
         'baz' => 'qux'
-      })
+      )
     end
 
     it 'ignores blank keys' do
