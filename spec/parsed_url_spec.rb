@@ -127,8 +127,8 @@ RSpec.describe DomainExtractor::ParsedURL do
       end
     end
 
-    context 'with invalid URL' do
-      let(:parsed) { DomainExtractor::ParsedURL.new(nil) }
+    context 'with invalid URL input' do
+      let(:parsed) { DomainExtractor.parse('invalid_url_value') }
 
       describe 'default accessor methods' do
         it 'returns nil for subdomain' do
@@ -189,6 +189,50 @@ RSpec.describe DomainExtractor::ParsedURL do
         end
       end
     end
+
+    context 'with nil input' do
+      let(:parsed) { DomainExtractor.parse(nil) }
+
+      it 'returns nil for default accessors' do
+        expect(parsed.domain).to be_nil
+        expect(parsed.host).to be_nil
+        expect(parsed.subdomain).to be_nil
+      end
+
+      it 'returns false for question accessors' do
+        expect(parsed.domain?).to be false
+        expect(parsed.host?).to be false
+        expect(parsed.subdomain?).to be false
+      end
+
+      it 'raises for bang accessors' do
+        expect { parsed.domain! }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'domain not found or invalid'
+        )
+      end
+    end
+
+    context 'with empty string input' do
+      let(:parsed) { DomainExtractor.parse('') }
+
+      it 'returns nil for default accessors' do
+        expect(parsed.domain).to be_nil
+        expect(parsed.host).to be_nil
+      end
+
+      it 'returns false for question accessors' do
+        expect(parsed.domain?).to be false
+        expect(parsed.host?).to be false
+      end
+
+      it 'raises for bang accessors' do
+        expect { parsed.host! }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'host not found or invalid'
+        )
+      end
+    end
   end
 
   describe '#www_subdomain?' do
@@ -208,7 +252,7 @@ RSpec.describe DomainExtractor::ParsedURL do
     end
 
     it 'returns false for invalid URL' do
-      parsed = DomainExtractor::ParsedURL.new(nil)
+      parsed = DomainExtractor.parse('invalid_url_value')
       expect(parsed.www_subdomain?).to be false
     end
   end
@@ -220,7 +264,7 @@ RSpec.describe DomainExtractor::ParsedURL do
     end
 
     it 'returns false for invalid URL' do
-      parsed = DomainExtractor::ParsedURL.new(nil)
+      parsed = DomainExtractor.parse('invalid_url_value')
       expect(parsed.valid?).to be false
     end
 
@@ -299,8 +343,7 @@ RSpec.describe DomainExtractor::ParsedURL do
 
     it 'handles example: domain returns nil for invalid URL' do
       # Parser returns ParsedURL with empty result for invalid URLs
-      # But parse() raises error, so we need to construct directly
-      parsed = DomainExtractor::ParsedURL.new(nil)
+      parsed = DomainExtractor.parse('invalid_url_value')
       expect(parsed.domain).to be_nil
     end
   end

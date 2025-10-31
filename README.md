@@ -65,6 +65,10 @@ end
 result.subdomain      # => 'www'
 result.domain         # => 'example'
 result.host           # => 'www.example.co.uk'
+
+# Opt into strict parsing when needed
+DomainExtractor.parse!('notaurl')
+# => raises DomainExtractor::InvalidURLError: Invalid URL Value
 ```
 
 ## ParsedURL API - Intuitive Method Access
@@ -150,6 +154,28 @@ DomainExtractor.parse('https://api.dashtrack.com').subdomain?   # => true
 # Check for www subdomain specifically
 DomainExtractor.parse('https://www.dashtrack.com').www_subdomain? # => true
 DomainExtractor.parse('https://api.dashtrack.com').www_subdomain? # => false
+
+```
+
+#### Handling Unknown or Invalid Data
+
+```ruby
+# Default accessors fail silently with nil
+DomainExtractor.parse(nil).domain                 # => nil
+DomainExtractor.parse('').host                    # => nil
+DomainExtractor.parse('asdfasdfds').domain        # => nil
+
+# Boolean checks never raise
+DomainExtractor.parse(nil).subdomain?             # => false
+DomainExtractor.parse('').domain?                 # => false
+DomainExtractor.parse('https://dashtrack.com').subdomain? # => false
+
+# Bang methods raise when a component is missing
+DomainExtractor.parse('').host!                   # => raises DomainExtractor::InvalidURLError
+DomainExtractor.parse('asdfasdfds').domain!       # => raises DomainExtractor::InvalidURLError
+
+# Strict parsing helper mirrors legacy behaviour
+DomainExtractor.parse!('asdfasdfds')              # => raises DomainExtractor::InvalidURLError
 ```
 
 #### Safe Batch Processing

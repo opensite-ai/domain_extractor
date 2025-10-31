@@ -15,10 +15,21 @@ module DomainExtractor
   class << self
     # Parse an individual URL and extract domain attributes.
     # Returns a ParsedURL object that supports hash-style access and method calls.
-    # Raises DomainExtractor::InvalidURLError when the URL fails validation.
+    # For invalid inputs the returned ParsedURL will be marked invalid and all
+    # accessors (without bang) will evaluate to nil/false.
     # @param url [String, #to_s]
     # @return [ParsedURL]
     def parse(url)
+      Parser.call(url)
+    end
+
+    # Parse an individual URL and raise when extraction fails.
+    # This mirrors the legacy behaviour of .parse while giving callers an
+    # explicit opt-in to strict validation.
+    # @param url [String, #to_s]
+    # @return [ParsedURL]
+    # @raise [InvalidURLError]
+    def parse!(url)
       result = Parser.call(url)
       raise InvalidURLError unless result.valid?
 

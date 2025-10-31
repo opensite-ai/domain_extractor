@@ -142,40 +142,42 @@ RSpec.describe DomainExtractor do
     end
 
     context 'with invalid URLs' do
-      it 'raises InvalidURLError for malformed URLs' do
-        expect { described_class.parse('http://') }.to raise_error(
+      let(:invalid_inputs) { ['http://', 'not_a_url', '192.168.1.1', '[2001:db8::1]', '', nil] }
+
+      it 'returns an invalid ParsedURL that safely yields nil values' do
+        invalid_inputs.each do |input|
+          result = described_class.parse(input)
+
+          expect(result).to be_a(DomainExtractor::ParsedURL)
+          expect(result.valid?).to be(false)
+          expect(result.domain).to be_nil
+          expect(result.domain?).to be(false)
+          expect(result.host).to be_nil
+          expect(result.host?).to be(false)
+        end
+      end
+
+      it 'allows bang accessors to raise explicit errors' do
+        result = described_class.parse('not_a_url')
+
+        expect { result.domain! }.to raise_error(
           DomainExtractor::InvalidURLError,
-          'Invalid URL Value'
+          'domain not found or invalid'
+        )
+
+        expect { result.host! }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'host not found or invalid'
         )
       end
 
-      it 'raises InvalidURLError for invalid domains' do
-        expect { described_class.parse('not_a_url') }.to raise_error(
-          DomainExtractor::InvalidURLError,
-          'Invalid URL Value'
-        )
-      end
-
-      it 'raises InvalidURLError for IP addresses' do
-        expect { described_class.parse('192.168.1.1') }.to raise_error(
-          DomainExtractor::InvalidURLError,
-          'Invalid URL Value'
-        )
-      end
-
-      it 'raises InvalidURLError for IPv6 addresses' do
-        expect { described_class.parse('[2001:db8::1]') }.to raise_error(
-          DomainExtractor::InvalidURLError,
-          'Invalid URL Value'
-        )
-      end
-
-      it 'raises InvalidURLError for empty string' do
-        expect { described_class.parse('') }.to raise_error(DomainExtractor::InvalidURLError, 'Invalid URL Value')
-      end
-
-      it 'raises InvalidURLError for nil' do
-        expect { described_class.parse(nil) }.to raise_error(DomainExtractor::InvalidURLError, 'Invalid URL Value')
+      it 'provides strict parsing via parse!' do
+        invalid_inputs.each do |input|
+          expect { described_class.parse!(input) }.to raise_error(
+            DomainExtractor::InvalidURLError,
+            'Invalid URL Value'
+          )
+        end
       end
     end
   end
