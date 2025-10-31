@@ -13,16 +13,19 @@ module DomainExtractor
     module_function
 
     def call(raw_url)
-      uri = build_uri(raw_url)
-      return unless uri
+      components = extract_components(raw_url)
+      return unless components
 
-      host = uri.host&.downcase
-      return if invalid_host?(host)
-
-      domain = ::PublicSuffix.parse(host)
+      uri, domain, host = components
       build_result(domain: domain, host: host, uri: uri)
     rescue ::URI::InvalidURIError, ::PublicSuffix::Error
       nil
+    end
+
+    def valid?(raw_url)
+      !!extract_components(raw_url)
+    rescue ::URI::InvalidURIError, ::PublicSuffix::Error
+      false
     end
 
     def build_uri(raw_url)
@@ -37,6 +40,18 @@ module DomainExtractor
       host.nil? || Validators.ip_address?(host) || !::PublicSuffix.valid?(host)
     end
     private_class_method :invalid_host?
+
+    def extract_components(raw_url)
+      uri = build_uri(raw_url)
+      return unless uri
+
+      host = uri.host&.downcase
+      return if invalid_host?(host)
+
+      domain = ::PublicSuffix.parse(host)
+      [uri, domain, host]
+    end
+    private_class_method :extract_components
 
     def build_result(domain:, host:, uri:)
       Result.build(

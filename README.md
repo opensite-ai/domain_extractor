@@ -52,6 +52,14 @@ result[:domain]       # => 'example'
 result[:tld]          # => 'co.uk'
 result[:root_domain]  # => 'example.co.uk'
 result[:host]         # => 'www.example.co.uk'
+
+# Guard a parse with the validity helper
+url = 'https://www.example.co.uk/path?query=value'
+if DomainExtractor.valid?(url)
+  DomainExtractor.parse(url)
+else
+  # handle invalid input
+end
 ```
 
 ## Usage Examples
@@ -105,19 +113,37 @@ urls = ['https://example.com', 'https://blog.example.org']
 results = DomainExtractor.parse_batch(urls)
 ```
 
+### Validation and Error Handling
+
+```ruby
+DomainExtractor.valid?('https://www.example.com') # => true
+
+# DomainExtractor.parse raises DomainExtractor::InvalidURLError on invalid input
+DomainExtractor.parse('not-a-url')
+# => raises DomainExtractor::InvalidURLError (message: "Invalid URL Value")
+```
+
 ## API Reference
 
 ### `DomainExtractor.parse(url_string)`
 
 Parses a URL string and extracts domain components.
 
-**Returns:** Hash with keys `:subdomain`, `:domain`, `:tld`, `:root_domain`, `:host`, `:path` or `nil`
+**Returns:** Hash with keys `:subdomain`, `:domain`, `:tld`, `:root_domain`, `:host`, `:path`
+
+**Raises:** `DomainExtractor::InvalidURLError` when the URL fails validation
 
 ### `DomainExtractor.parse_batch(urls)`
 
 Parses multiple URLs efficiently.
 
 **Returns:** Array of parsed results
+
+### `DomainExtractor.valid?(url_string)`
+
+Checks if a URL can be parsed successfully without raising.
+
+**Returns:** `true` or `false`
 
 ### `DomainExtractor.parse_query_params(query_string)`
 
@@ -146,8 +172,9 @@ track_event('page_view', source_domain: parsed[:root_domain]) if parsed
 
 ```ruby
 def internal_link?(url, base_domain)
-  parsed = DomainExtractor.parse(url)
-  parsed && parsed[:root_domain] == base_domain
+  return false unless DomainExtractor.valid?(url)
+
+  DomainExtractor.parse(url)[:root_domain] == base_domain
 end
 ```
 

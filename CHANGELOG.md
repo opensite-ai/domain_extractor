@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2025-10-31
+
+### Added valid? method and enhanced error handling
+
+- Added `DomainExtractor.valid?` helper to allow safe URL pre-checks without raising.
+- `DomainExtractor.parse` now raises `DomainExtractor::InvalidURLError` with a clear `"Invalid URL Value"` message when the input cannot be parsed.
+
 ## [0.1.6] - 2025-10-31
 
 ### Integrate Rakefile for Release and Task Workflow Refactors

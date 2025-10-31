@@ -142,29 +142,67 @@ RSpec.describe DomainExtractor do
     end
 
     context 'with invalid URLs' do
-      it 'returns nil for malformed URLs' do
-        expect(described_class.parse('http://')).to be_nil
+      it 'raises InvalidURLError for malformed URLs' do
+        expect { described_class.parse('http://') }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'Invalid URL Value'
+        )
       end
 
-      it 'returns nil for invalid domains' do
-        expect(described_class.parse('not_a_url')).to be_nil
+      it 'raises InvalidURLError for invalid domains' do
+        expect { described_class.parse('not_a_url') }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'Invalid URL Value'
+        )
       end
 
-      it 'returns nil for IP addresses' do
-        expect(described_class.parse('192.168.1.1')).to be_nil
+      it 'raises InvalidURLError for IP addresses' do
+        expect { described_class.parse('192.168.1.1') }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'Invalid URL Value'
+        )
       end
 
-      it 'returns nil for IPv6 addresses' do
-        expect(described_class.parse('[2001:db8::1]')).to be_nil
+      it 'raises InvalidURLError for IPv6 addresses' do
+        expect { described_class.parse('[2001:db8::1]') }.to raise_error(
+          DomainExtractor::InvalidURLError,
+          'Invalid URL Value'
+        )
       end
 
-      it 'returns nil for empty string' do
-        expect(described_class.parse('')).to be_nil
+      it 'raises InvalidURLError for empty string' do
+        expect { described_class.parse('') }.to raise_error(DomainExtractor::InvalidURLError, 'Invalid URL Value')
       end
 
-      it 'returns nil for nil' do
-        expect(described_class.parse(nil)).to be_nil
+      it 'raises InvalidURLError for nil' do
+        expect { described_class.parse(nil) }.to raise_error(DomainExtractor::InvalidURLError, 'Invalid URL Value')
       end
+    end
+  end
+
+  describe '.valid?' do
+    it 'returns true for a normalized domain' do
+      expect(described_class.valid?('dashtrack.com')).to be(true)
+    end
+
+    it 'returns true for a full URL with subdomain and query' do
+      expect(described_class.valid?('https://www.example.co.uk/path?query=value')).to be(true)
+    end
+
+    it 'returns false for malformed URLs' do
+      expect(described_class.valid?('http://')).to be(false)
+    end
+
+    it 'returns false for invalid domains' do
+      expect(described_class.valid?('not_a_url')).to be(false)
+    end
+
+    it 'returns false for IP addresses' do
+      expect(described_class.valid?('192.168.1.1')).to be(false)
+    end
+
+    it 'returns false for nil values' do
+      expect(described_class.valid?(nil)).to be(false)
     end
   end
 
