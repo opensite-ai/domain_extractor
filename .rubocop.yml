@@ -1,0 +1,20 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.7
+  Exclude:
+    - 'bin/**/*'
+    - 'tmp/**/*'
+
+require:
+  - rubocop-performance
+  - rubocop-rspec
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Metrics/MethodLength:
+  Max: 25
+
+Style/Documentation:
+  Enabled: false

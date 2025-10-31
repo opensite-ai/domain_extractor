@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.name = 'domain_extractor'
   spec.version = DomainExtractor::VERSION
   spec.authors = ['OpenSite AI']
-  spec.summary = 'Extract domain components from URLs with multi-part TLD support'
+  spec.summary = 'High-performance url parser and domain extractor for Ruby'
 
   # Files to include in the gem
   spec.files = Dir.glob('{lib,spec}/**/*') + %w[
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
     .rubocop.yml
   ]
 
-  spec.description = "DomainExtractor is a lightweight, robust Ruby library for parsing URLs and extracting domain components. It accurately handles complex scenarios including multi-part TLDs (co.uk, com.au), nested subdomains, query parameters, and URL normalization. Built on Ruby's URI library and the public_suffix gem, it provides reliable domain parsing for web scraping, analytics, and URL manipulation tasks."
+  spec.description = 'DomainExtractor is a high-performance url parser and domain parser for Ruby. It delivers precise domain extraction, query parameter parsing, url normalization, and multi-part tld parsing via public_suffix for web scraping and analytics workflows.'
   spec.email = 'dev@opensite.ai'
   spec.homepage = 'https://github.com/opensite-ai/domain_extractor'
   spec.license = 'MIT'
@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
     'source_code_uri' => 'https://github.com/opensite-ai/domain_extractor',
     'changelog_uri' => 'https://github.com/opensite-ai/domain_extractor/blob/main/CHANGELOG.md',
     'documentation_uri' => 'https://rubydoc.info/gems/domain_extractor',
-    'bug_tracker_uri' => 'https://github.com/opensite-ai/domain_extractor/domain_extractor/issues',
+    'bug_tracker_uri' => 'https://github.com/opensite-ai/domain_extractor/issues',
     'homepage_uri' => 'https://opensite.ai',
     'wiki_uri' => 'https://docs.devguides.com/domain_extractor',
     'rubygems_mfa_required' => 'true',

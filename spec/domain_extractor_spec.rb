@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require 'spec_helper'
 
-RSpec.describe UrlParser do
+RSpec.describe DomainExtractor do
   describe '.parse' do
     context 'with valid URLs' do
       it 'parses a simple domain without subdomain' do
@@ -132,55 +132,51 @@ RSpec.describe UrlParser do
         expect(result[:query_params]).to eq({ 'flag' => nil })
       end
 
-      it 'returns nil subdomain instead of empty string' do
-        result = described_class.parse('https://example.com/page')
+      it 'normalizes URLs without a scheme' do
+        result = described_class.parse('example.com/path?id=1')
 
-        expect(result[:subdomain]).to be_nil
+        expect(result[:root_domain]).to eq('example.com')
+        expect(result[:path]).to eq('/path')
+        expect(result[:query_params]).to eq({ 'id' => '1' })
       end
     end
 
     context 'with invalid URLs' do
-      it 'returns nil for invalid URL' do
-        result = described_class.parse('aninvalidurl')
-
-        expect(result).to be_nil
-      end
-
-      it 'returns nil for empty string' do
-        result = described_class.parse('')
-
-        expect(result).to be_nil
-      end
-
-      it 'returns nil for nil input' do
-        result = described_class.parse(nil)
-
-        expect(result).to be_nil
-      end
-
       it 'returns nil for malformed URLs' do
-        result = described_class.parse('http://')
+        expect(described_class.parse('http://')).to be_nil
+      end
 
-        expect(result).to be_nil
+      it 'returns nil for invalid domains' do
+        expect(described_class.parse('not_a_url')).to be_nil
       end
 
       it 'returns nil for IP addresses' do
-        result = described_class.parse('192.168.1.1')
+        expect(described_class.parse('192.168.1.1')).to be_nil
+      end
 
-        expect(result).to be_nil
+      it 'returns nil for IPv6 addresses' do
+        expect(described_class.parse('[2001:db8::1]')).to be_nil
+      end
+
+      it 'returns nil for empty string' do
+        expect(described_class.parse('')).to be_nil
+      end
+
+      it 'returns nil for nil' do
+        expect(described_class.parse(nil)).to be_nil
       end
     end
   end
 
-  describe '.query_to_hash' do
+  describe '.parse_query_params' do
     it 'converts simple query string to hash' do
-      result = described_class.query_to_hash('foo=bar')
+      result = described_class.parse_query_params('foo=bar')
 
       expect(result).to eq({ 'foo' => 'bar' })
     end
 
     it 'converts multiple parameters to hash' do
-      result = described_class.query_to_hash('foo=bar&baz=qux&id=123')
+      result = described_class.parse_query_params('foo=bar&baz=qux&id=123')
 
       expect(result).to eq({
         'foo' => 'bar',
@@ -190,31 +186,31 @@ RSpec.describe UrlParser do
     end
 
     it 'returns empty hash for nil query' do
-      result = described_class.query_to_hash(nil)
+      result = described_class.parse_query_params(nil)
 
       expect(result).to eq({})
     end
 
     it 'returns empty hash for empty string query' do
-      result = described_class.query_to_hash('')
+      result = described_class.parse_query_params('')
 
       expect(result).to eq({})
     end
 
     it 'handles parameters with empty values' do
-      result = described_class.query_to_hash('key=')
+      result = described_class.parse_query_params('key=')
 
       expect(result).to eq({ 'key' => nil })
     end
 
     it 'handles parameters without values' do
-      result = described_class.query_to_hash('flag')
+      result = described_class.parse_query_params('flag')
 
       expect(result).to eq({ 'flag' => nil })
     end
 
     it 'handles mixed parameters with and without values' do
-      result = described_class.query_to_hash('foo=bar&flag&baz=qux')
+      result = described_class.parse_query_params('foo=bar&flag&baz=qux')
 
       expect(result).to eq({
         'foo' => 'bar',
@@ -222,11 +218,17 @@ RSpec.describe UrlParser do
         'baz' => 'qux'
       })
     end
+
+    it 'ignores blank keys' do
+      result = described_class.parse_query_params('=value&foo=bar')
+
+      expect(result).to eq({ 'foo' => 'bar' })
+    end
   end
 
   describe '.parse_batch' do
     it 'parses multiple URLs' do
-      url_strings = [
+      urls = [
         'dashtrack.com',
         'www.insurancesite.ai',
         'https://hitting.com/index',
@@ -234,7 +236,7 @@ RSpec.describe UrlParser do
         ''
       ]
 
-      results = described_class.parse_batch(url_strings)
+      results = described_class.parse_batch(urls)
 
       expect(results[0][:root_domain]).to eq('dashtrack.com')
       expect(results[0][:subdomain]).to be_nil
@@ -250,24 +252,22 @@ RSpec.describe UrlParser do
     end
 
     it 'handles all invalid URLs' do
-      url_strings = ['invalid', '', nil]
-
-      results = described_class.parse_batch(url_strings)
+      results = described_class.parse_batch(['invalid', '', nil])
 
       expect(results).to all(be_nil)
     end
 
     it 'handles all valid URLs' do
-      url_strings = [
-        'example.com',
-        'www.example.com',
-        'api.example.com'
-      ]
+      urls = ['example.com', 'www.example.com', 'api.example.com']
 
-      results = described_class.parse_batch(url_strings)
+      results = described_class.parse_batch(urls)
 
       expect(results).to all(be_a(Hash))
-      expect(results.map { |r| r[:root_domain] }).to all(eq('example.com'))
+      expect(results.map { |result| result[:root_domain] }).to all(eq('example.com'))
+    end
+
+    it 'returns empty array for non-enumerable inputs' do
+      expect(described_class.parse_batch(nil)).to eq([])
     end
   end
 end

@@ -4,14 +4,16 @@
 [![Build Status](https://github.com/opensite-ai/domain_extractor/workflows/CI/badge.svg)](https://github.com/opensite-ai/domain_extractor/actions)
 [![Code Climate](https://codeclimate.com/github/opensite-ai/domain_extractor/badges/gpa.svg)](https://codeclimate.com/github/opensite-ai/domain_extractor)
 
-A lightweight, robust Ruby library for parsing URLs and extracting domain components with **accurate multi-part TLD support**. Perfect for web scraping, analytics, URL manipulation, and domain analysis.
+A lightweight, robust Ruby library for url parsing and domain parsing with **accurate multi-part TLD support**. DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis.
+
+Use DomainExtractor whenever you need a dependable tld parser for tricky multi-part tld registries or reliable subdomain extraction in production systems.
 
 ## Why DomainExtractor?
 
-✅ **Accurate TLD Parsing** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
-✅ **Nested Subdomain Support** - Correctly parses multi-level subdomains (api.staging.example.com)
+✅ **Accurate Multi-part TLD Parser** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
+✅ **Nested Subdomain Extraction** - Correctly parses multi-level subdomains (api.staging.example.com)
 ✅ **Smart URL Normalization** - Automatically handles URLs with or without schemes
-✅ **Query Parameter Extraction** - Parse query strings into structured hashes
+✅ **Query Parameter Parsing** - Parse query strings into structured hashes
 ✅ **Batch Processing** - Parse multiple URLs efficiently
 ✅ **IP Address Detection** - Identifies and handles IPv4 and IPv6 addresses
 ✅ **Zero Configuration** - Works out of the box with sensible defaults
@@ -57,7 +59,7 @@ result[:host]         # => 'www.example.co.uk'
 ### Basic Domain Parsing
 
 ```ruby
-# Parse a simple domain
+# Parse a simple domain (fast domain extraction)
 DomainExtractor.parse('example.com')
 # => { subdomain: nil, domain: 'example', tld: 'com', ... }
 
@@ -90,6 +92,10 @@ DomainExtractor.parse('api.staging.example.com')
 ```ruby
 params = DomainExtractor.parse_query_params('?utm_source=google&page=1')
 # => { 'utm_source' => 'google', 'page' => '1' }
+
+# Or via the shorter helper
+DomainExtractor.parse_query('?search=ruby&flag')
+# => { 'search' => 'ruby', 'flag' => nil }
 ```
 
 ### Batch URL Processing
@@ -148,7 +154,7 @@ end
 ## Performance
 
 - **Single URL parsing**: ~0.0001s per URL
-- **Batch processing**: ~0.01s for 100 URLs
+- **Batch domain extraction**: ~0.01s for 100 URLs
 - **Memory efficient**: Minimal object allocation
 - **Thread-safe**: Can be used in concurrent environments
 
@@ -156,9 +162,10 @@ end
 
 | Feature                     | DomainExtractor | Addressable | URI (stdlib) |
 | --------------------------- | --------------- | ----------- | ------------ |
-| Multi-part TLD support      | ✅              | ❌          | ❌           |
+| Multi-part TLD parser       | ✅              | ❌          | ❌           |
 | Subdomain extraction        | ✅              | ❌          | ❌           |
 | Domain component separation | ✅              | ❌          | ❌           |
+| Built-in url normalization  | ✅              | ❌          | ❌           |
 | Lightweight                 | ✅              | ❌          | ✅           |
 
 ## Requirements
