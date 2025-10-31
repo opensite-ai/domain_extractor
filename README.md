@@ -170,7 +170,7 @@ end
 
 ## Requirements
 
-- Ruby 2.7.0 or higher
+- Ruby 3.0.0 or higher
 - public_suffix gem (~> 6.0)
 
 ## Contributing

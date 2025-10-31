@@ -1,9 +1,9 @@
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0.0
   Exclude:
-    - 'bin/**/*'
-    - 'tmp/**/*'
+    - "bin/**/*"
+    - "tmp/**/*"
 
 require:
   - rubocop-performance
@@ -11,7 +11,7 @@ require:
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*.rb'
+    - "spec/**/*.rb"
 
 Metrics/MethodLength:
   Max: 25
