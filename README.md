@@ -60,7 +60,182 @@ if DomainExtractor.valid?(url)
 else
   # handle invalid input
 end
+
+# New intuitive method-style access
+result.subdomain      # => 'www'
+result.domain         # => 'example'
+result.host           # => 'www.example.co.uk'
 ```
+
+## ParsedURL API - Intuitive Method Access
+
+DomainExtractor now returns a `ParsedURL` object that supports three accessor styles, making your intent clear and your code more robust:
+
+### Method Accessor Styles
+
+#### 1. Default Methods (Silent Nil)
+Returns the value or `nil` - perfect for exploratory code or when handling invalid data gracefully.
+
+```ruby
+result = DomainExtractor.parse('https://api.example.com')
+result.subdomain    # => 'api'
+result.domain       # => 'example'
+result.host         # => 'api.example.com'
+
+# Without subdomain
+result = DomainExtractor.parse('https://example.com')
+result.subdomain    # => nil (no error)
+result.domain       # => 'example'
+```
+
+#### 2. Bang Methods (!) - Explicit Errors
+Returns the value or raises `InvalidURLError` - ideal for production code where missing data should fail fast.
+
+```ruby
+result = DomainExtractor.parse('https://example.com')
+result.domain!      # => 'example'
+result.subdomain!   # raises InvalidURLError: "subdomain not found or invalid"
+```
+
+#### 3. Question Methods (?) - Boolean Checks
+Always returns `true` or `false` - perfect for conditional logic without exceptions.
+
+```ruby
+DomainExtractor.parse('https://dashtrack.com').subdomain?        # => false
+DomainExtractor.parse('https://api.dashtrack.com').subdomain?   # => true
+DomainExtractor.parse('https://www.dashtrack.com').www_subdomain? # => true
+```
+
+### Quick Examples
+
+```ruby
+url = 'https://api.staging.example.com/path'
+parsed = DomainExtractor.parse(url)
+
+# Method-style access
+parsed.host           # => 'api.staging.example.com'
+parsed.subdomain      # => 'api.staging'
+parsed.domain         # => 'example'
+parsed.root_domain    # => 'example.com'
+parsed.tld            # => 'com'
+parsed.path           # => '/path'
+
+# Question methods for conditionals
+if parsed.subdomain?
+  puts "Has subdomain: #{parsed.subdomain}"
+end
+
+# Bang methods when values are required
+begin
+  subdomain = parsed.subdomain!  # Safe - has subdomain
+  domain = parsed.domain!        # Safe - has domain
+rescue DomainExtractor::InvalidURLError => e
+  puts "Missing required component: #{e.message}"
+end
+
+# Hash-style access still works (backward compatible)
+parsed[:subdomain]    # => 'api.staging'
+parsed[:host]         # => 'api.staging.example.com'
+```
+
+### Additional Examples
+
+#### Boolean Checks with Question Methods
+
+```ruby
+# Check for subdomain presence
+DomainExtractor.parse('https://dashtrack.com').subdomain?        # => false
+DomainExtractor.parse('https://api.dashtrack.com').subdomain?   # => true
+
+# Check for www subdomain specifically
+DomainExtractor.parse('https://www.dashtrack.com').www_subdomain? # => true
+DomainExtractor.parse('https://api.dashtrack.com').www_subdomain? # => false
+```
+
+#### Safe Batch Processing
+
+```ruby
+urls = [
+  'https://api.example.com',
+  'https://example.com',
+  'https://www.example.com'
+]
+
+urls.each do |url|
+  result = DomainExtractor.parse(url)
+
+  info = {
+    url: url,
+    has_subdomain: result.subdomain?,
+    is_www: result.www_subdomain?,
+    host: result.host
+  }
+
+  puts "#{info[:url]} - subdomain: #{info[:has_subdomain]}, www: #{info[:is_www]}"
+end
+```
+
+#### Production URL Validation
+
+```ruby
+def validate_api_url(url)
+  result = DomainExtractor.parse(url)
+
+  # Ensure all required components exist
+  result.subdomain!  # Must have subdomain
+  result.domain!     # Must have domain
+
+  # Additional validation
+  return false unless result.subdomain.start_with?('api')
+
+  true
+rescue DomainExtractor::InvalidURLError => e
+  puts "Validation failed: #{e.message}"
+  false
+end
+
+validate_api_url('https://api.example.com/endpoint')  # => true
+validate_api_url('https://example.com/endpoint')      # => false (no subdomain)
+validate_api_url('https://www.example.com/endpoint')  # => false (not api subdomain)
+```
+
+#### Guard Clauses with Question Methods
+
+```ruby
+def process_url(url)
+  result = DomainExtractor.parse(url)
+
+  return 'Invalid URL' unless result.valid?
+  return 'No subdomain present' unless result.subdomain?
+  return 'WWW redirect needed' if result.www_subdomain?
+
+  "Processing subdomain: #{result.subdomain}"
+end
+
+process_url('https://api.example.com')  # => "Processing subdomain: api"
+process_url('https://www.example.com')  # => "WWW redirect needed"
+process_url('https://example.com')      # => "No subdomain present"
+```
+
+#### Converting to Hash
+
+```ruby
+url = 'https://api.example.com/path'
+result = DomainExtractor.parse(url)
+
+hash = result.to_h
+# => {
+#   subdomain: "api",
+#   domain: "example",
+#   tld: "com",
+#   root_domain: "example.com",
+#   host: "api.example.com",
+#   path: "/path",
+#   query_params: {}
+# }
+```
+
+**See [docs/PARSED_URL_API.md](docs/PARSED_URL_API.md) for comprehensive documentation and real-world examples.**
 
 ## Usage Examples
 

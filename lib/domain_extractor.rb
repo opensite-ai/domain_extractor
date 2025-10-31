@@ -5,6 +5,7 @@ require 'public_suffix'
 
 require_relative 'domain_extractor/version'
 require_relative 'domain_extractor/errors'
+require_relative 'domain_extractor/parsed_url'
 require_relative 'domain_extractor/parser'
 require_relative 'domain_extractor/query_params'
 
@@ -13,11 +14,15 @@ require_relative 'domain_extractor/query_params'
 module DomainExtractor
   class << self
     # Parse an individual URL and extract domain attributes.
+    # Returns a ParsedURL object that supports hash-style access and method calls.
     # Raises DomainExtractor::InvalidURLError when the URL fails validation.
     # @param url [String, #to_s]
-    # @return [Hash]
+    # @return [ParsedURL]
     def parse(url)
-      Parser.call(url) || raise(InvalidURLError)
+      result = Parser.call(url)
+      raise InvalidURLError unless result.valid?
+
+      result
     end
 
     # Determine if a URL is considered valid by the parser.
@@ -28,12 +33,16 @@ module DomainExtractor
     end
 
     # Parse many URLs and return their individual parse results.
+    # Returns nil for invalid URLs to maintain backward compatibility.
     # @param urls [Enumerable<String>]
-    # @return [Array<Hash, nil>]
+    # @return [Array<ParsedURL, nil>]
     def parse_batch(urls)
       return [] unless urls.respond_to?(:map)
 
-      urls.map { |url| Parser.call(url) }
+      urls.map do |url|
+        result = Parser.call(url)
+        result.valid? ? result : nil
+      end
     end
 
     # Convert a query string into a Hash representation.

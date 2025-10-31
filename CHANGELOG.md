@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2025-10-31
+
+### Implemented Declarative Method-style Accessors
+
+#### Added
+
+- **ParsedURL API**: Introduced intuitive method-style accessors with three variants:
+  - Default methods (e.g., `result.subdomain`) - Returns value or nil
+  - Bang methods (e.g., `result.subdomain!`) - Returns value or raises `InvalidURLError`
+  - Question methods (e.g., `result.subdomain?`) - Returns boolean true/false
+- Added `www_subdomain?` helper method to check if subdomain is specifically 'www'
+- Added `valid?` method to check if parsed result contains valid data
+- Added `to_h` and `to_hash` methods for hash conversion
+- Comprehensive documentation in `docs/PARSED_URL_API.md`
+
+#### Changed
+
+- `DomainExtractor.parse` now returns `ParsedURL` object instead of plain Hash (backward compatible via `[]` accessor)
+- `DomainExtractor.parse_batch` now returns array of `ParsedURL` objects (or nil for invalid URLs)
+
+#### Maintained
+
+- Full backward compatibility with hash-style access using `[]`
+- All existing tests continue to pass
+- No breaking changes to existing API
+
 ## [0.1.7] - 2025-10-31
 
 ### Added valid? method and enhanced error handling

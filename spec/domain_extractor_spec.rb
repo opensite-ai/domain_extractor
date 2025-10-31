@@ -300,7 +300,7 @@ RSpec.describe DomainExtractor do
 
       results = described_class.parse_batch(urls)
 
-      expect(results).to all(be_a(Hash))
+      expect(results).to all(be_a(DomainExtractor::ParsedURL))
       expect(results.map { |result| result[:root_domain] }).to all(eq('example.com'))
     end
 

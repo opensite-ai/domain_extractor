@@ -6,6 +6,7 @@ require 'public_suffix'
 require_relative 'normalizer'
 require_relative 'result'
 require_relative 'validators'
+require_relative 'parsed_url'
 
 module DomainExtractor
   # Parser orchestrates the pipeline for url normalization, validation, and domain extraction.
@@ -14,12 +15,12 @@ module DomainExtractor
 
     def call(raw_url)
       components = extract_components(raw_url)
-      return unless components
+      return ParsedURL.new(nil) unless components
 
       uri, domain, host = components
       build_result(domain: domain, host: host, uri: uri)
     rescue ::URI::InvalidURIError, ::PublicSuffix::Error
-      nil
+      ParsedURL.new(nil)
     end
 
     def valid?(raw_url)
