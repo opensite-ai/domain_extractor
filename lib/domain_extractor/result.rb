@@ -3,20 +3,25 @@
 module DomainExtractor
   # Result encapsulates the final parsed attributes and exposes a hash interface.
   module Result
-    EMPTY_PATH = ''.freeze
+    EMPTY_PATH = ''
 
     module_function
 
-    def build(subdomain:, root_domain:, domain:, tld:, host:, path:, query:)
+    def build(**attributes)
       {
-        subdomain: subdomain,
-        root_domain: root_domain,
-        domain: domain,
-        tld: tld,
-        host: host,
-        path: path.nil? ? EMPTY_PATH : path,
-        query_params: QueryParams.call(query)
+        subdomain: normalize_subdomain(attributes[:subdomain]),
+        root_domain: attributes[:root_domain],
+        domain: attributes[:domain],
+        tld: attributes[:tld],
+        host: attributes[:host],
+        path: attributes[:path] || EMPTY_PATH,
+        query_params: QueryParams.call(attributes[:query])
       }
     end
+
+    def normalize_subdomain(value)
+      value.nil? || value.empty? ? nil : value
+    end
+    private_class_method :normalize_subdomain
   end
 end

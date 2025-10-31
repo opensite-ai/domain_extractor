@@ -4,52 +4,51 @@ require 'uri'
 require 'public_suffix'
 
 require_relative 'normalizer'
-require_relative 'query_params'
 require_relative 'result'
 require_relative 'validators'
 
 module DomainExtractor
   # Parser orchestrates the pipeline for url normalization, validation, and domain extraction.
   module Parser
-    EMPTY_STRING = ''
-
     module_function
 
-    def call(url)
-      normalized = Normalizer.call(url)
-      return if normalized.nil?
+    def call(raw_url)
+      uri = build_uri(raw_url)
+      return unless uri
 
-      uri = ::URI.parse(normalized)
       host = uri.host&.downcase
-      return if invalid?(host)
+      return if invalid_host?(host)
 
       domain = ::PublicSuffix.parse(host)
-      process_result(domain: domain, host: host, uri: uri)
+      build_result(domain: domain, host: host, uri: uri)
     rescue ::URI::InvalidURIError, ::PublicSuffix::Error
       nil
     end
 
-    def invalid?(host)
-      Validators.ip_address?(host) || !::PublicSuffix.valid?(host)
-    end
-    private_class_method :invalid?
+    def build_uri(raw_url)
+      normalized = Normalizer.call(raw_url)
+      return unless normalized
 
-    def blank_to_nil(value)
-      value.nil? || value.empty? ? nil : value
+      ::URI.parse(normalized)
     end
-    private_class_method :blank_to_nil
+    private_class_method :build_uri
 
-    def process_result(domain:, host:, uri:)
+    def invalid_host?(host)
+      host.nil? || Validators.ip_address?(host) || !::PublicSuffix.valid?(host)
+    end
+    private_class_method :invalid_host?
+
+    def build_result(domain:, host:, uri:)
       Result.build(
-        subdomain: blank_to_nil(domain.trd),
+        subdomain: domain.trd,
         root_domain: domain.domain,
         domain: domain.sld,
         tld: domain.tld,
         host: host,
-        path: uri.path || EMPTY_STRING,
+        path: uri.path,
         query: uri.query
       )
     end
-    private_class_method :process_result
+    private_class_method :build_result
   end
 end

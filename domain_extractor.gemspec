@@ -37,14 +37,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'public_suffix', '~> 6.0'
 
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.12'
-  spec.add_development_dependency 'rubocop', '~> 1.50'
-  spec.add_development_dependency 'rubocop-performance', '~> 1.18'
-  spec.add_development_dependency 'rubocop-rspec', '~> 2.20'
-  spec.add_development_dependency 'simplecov', '~> 0.22'
-  spec.add_development_dependency 'yard', '~> 0.9'
-
   spec.required_ruby_version = '>= 2.7.0'
   spec.require_paths = ['lib']
   spec.extra_rdoc_files = ['README.md', 'LICENSE.txt', 'CHANGELOG.md']
