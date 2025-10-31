@@ -7,10 +7,13 @@ on:
 
 permissions:
   contents: write
+  id-token: write # REQUIRED for trusted publishing
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Uncomment if you set an environment name in Step 1
+    # environment: production
 
     steps:
       - uses: actions/checkout@v4
@@ -33,11 +36,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Publish to RubyGems
-        run: |
-          mkdir -p ~/.gem
-          echo ":rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
-          chmod 600 ~/.gem/credentials
-          gem push *.gem
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+      - name: Publish to RubyGems via Trusted Publishing
+        uses: rubygems/release-gem@v1
