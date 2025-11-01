@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    domain_extractor (0.2.1)
+    domain_extractor (0.2.2)
       public_suffix (~> 6.0)
 
 GEM
@@ -9,6 +9,7 @@ GEM
   specs:
     ast (2.4.3)
     diff-lcs (1.6.2)
+    docile (1.4.1)
     json (2.15.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
@@ -70,6 +71,12 @@ GEM
     rubocop-rspec_rails (2.29.1)
       rubocop (~> 1.61)
     ruby-progressbar (1.13.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.13.2)
+    simplecov_json_formatter (0.1.4)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
@@ -86,6 +93,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.18)
   rubocop-rake (~> 0.7.1)
   rubocop-rspec (~> 2.20)
+  simplecov (~> 0.22.0)
 
 BUNDLED WITH
    2.7.2
