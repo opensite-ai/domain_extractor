@@ -78,6 +78,7 @@ DomainExtractor now returns a `ParsedURL` object that supports three accessor st
 ### Method Accessor Styles
 
 #### 1. Default Methods (Silent Nil)
+
 Returns the value or `nil` - perfect for exploratory code or when handling invalid data gracefully.
 
 ```ruby
@@ -93,6 +94,7 @@ result.domain       # => 'example'
 ```
 
 #### 2. Bang Methods (!) - Explicit Errors
+
 Returns the value or raises `InvalidURLError` - ideal for production code where missing data should fail fast.
 
 ```ruby
@@ -102,6 +104,7 @@ result.subdomain!   # raises InvalidURLError: "subdomain not found or invalid"
 ```
 
 #### 3. Question Methods (?) - Boolean Checks
+
 Always returns `true` or `false` - perfect for conditional logic without exceptions.
 
 ```ruby
@@ -261,7 +264,7 @@ hash = result.to_h
 # }
 ```
 
-**See [docs/PARSED_URL_API.md](docs/PARSED_URL_API.md) for comprehensive documentation and real-world examples.**
+**[Comprehensive documentation and real-world examples of parsed URL quick start guide](https://github.com/opensite-ai/domain_extractor/blob/master/docs/PARSED_URL_QUICK_START.md)**
 
 ## Usage Examples
 
@@ -326,31 +329,38 @@ DomainExtractor.parse('not-a-url')
 
 ## API Reference
 
-### `DomainExtractor.parse(url_string)`
+```ruby
+DomainExtractor.parse(url_string)
 
-Parses a URL string and extracts domain components.
+# => Parses a URL string and extracts domain components.
 
-**Returns:** Hash with keys `:subdomain`, `:domain`, `:tld`, `:root_domain`, `:host`, `:path`
+# Returns: Hash with keys :subdomain, :domain, :tld, :root_domain, :host, :path
+# Raises: DomainExtractor::InvalidURLError when the URL fails validation
+```
 
-**Raises:** `DomainExtractor::InvalidURLError` when the URL fails validation
+```ruby
+DomainExtractor.parse_batch(urls)
 
-### `DomainExtractor.parse_batch(urls)`
+# => Parses multiple URLs efficiently.
 
-Parses multiple URLs efficiently.
+# Returns: Array of parsed results
+```
 
-**Returns:** Array of parsed results
+```ruby
+DomainExtractor.valid?(url_string)
 
-### `DomainExtractor.valid?(url_string)`
+# => Checks if a URL can be parsed successfully without raising.
 
-Checks if a URL can be parsed successfully without raising.
+# Returns: true or false
+```
 
-**Returns:** `true` or `false`
+```ruby
+DomainExtractor.parse_query_params(query_string)
 
-### `DomainExtractor.parse_query_params(query_string)`
+# => Parses a query string into a hash of parameters.
 
-Parses a query string into a hash of parameters.
-
-**Returns:** Hash of query parameters
+# Returns: Hash of query parameters
+```
 
 ## Use Cases
 
