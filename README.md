@@ -1,12 +1,12 @@
 # DomainExtractor
 
-[![Gem Version](https://badge.fury.io/rb/domain_extractor.svg)](https://badge.fury.io/rb/domain_extractor)
+[![Gem Version](https://badge.fury.io/rb/domain_extractor.svg?v=020)](https://badge.fury.io/rb/domain_extractor)
 [![CI](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml)
 [![Code Climate](https://codeclimate.com/github/opensite-ai/domain_extractor/badges/gpa.svg)](https://codeclimate.com/github/opensite-ai/domain_extractor)
 
 A lightweight, robust Ruby library for url parsing and domain parsing with **accurate multi-part TLD support**. DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis.
 
-Use DomainExtractor whenever you need a dependable tld parser for tricky multi-part tld registries or reliable subdomain extraction in production systems.
+Use **DomainExtractor** whenever you need a dependable tld parser for tricky multi-part tld registries or reliable subdomain extraction in production systems.
 
 ## Why DomainExtractor?
 
@@ -399,7 +399,7 @@ Optimized for high-throughput production use:
 - **Thread-safe**: Stateless modules, safe for concurrent use
 - **Zero-allocation hot paths**: Frozen constants, pre-compiled regex
 
-See [PERFORMANCE.md](https://github.com/opensite-ai/domain_extractor/docs/PERFORMANCE.md) for detailed benchmarks and optimization strategies and benchmark results along with a full set of enhancements made in order to meet the highly performance centric requirements of the OpenSite AI site rendering engine, showcased in the [OPTIMIZATION_SUMMARY.md](https://github.com/opensite-ai/domain_extractor/docs/OPTIMIZATION_SUMMARY.md)
+View [performance analysis](https://github.com/opensite-ai/domain_extractor/blob/master/docs/PERFORMANCE.md) for detailed benchmarks and optimization strategies and benchmark results along with a full set of enhancements made in order to meet the highly performance centric requirements of the OpenSite AI site rendering engine, showcased in the [optimization summary](https://github.com/opensite-ai/domain_extractor/blob/master/docs/OPTIMIZATION_SUMMARY.md)
 
 ## Comparison with Alternatives
 
