@@ -3,7 +3,6 @@
 [![Gem Version](https://badge.fury.io/rb/domain_extractor.svg?v=020)](https://badge.fury.io/rb/domain_extractor)
 [![CI](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml)
 [![Code Climate](https://codeclimate.com/github/opensite-ai/domain_extractor/badges/gpa.svg)](https://codeclimate.com/github/opensite-ai/domain_extractor)
-[![Code Coverage](https://qlty.sh/gh/opensite-ai/projects/domain_extractor/coverage.svg)](https://qlty.sh/gh/opensite-ai/projects/domain_extractor)
 
 A lightweight, robust Ruby library for url parsing and domain parsing with **accurate multi-part TLD support**. DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis.
 
@@ -66,10 +65,6 @@ end
 result.subdomain      # => 'www'
 result.domain         # => 'example'
 result.host           # => 'www.example.co.uk'
-
-# Opt into strict parsing when needed
-DomainExtractor.parse!('notaurl')
-# => raises DomainExtractor::InvalidURLError: Invalid URL Value
 ```
 
 ## ParsedURL API - Intuitive Method Access
@@ -177,9 +172,6 @@ DomainExtractor.parse('https://dashtrack.com').subdomain? # => false
 # Bang methods raise when a component is missing
 DomainExtractor.parse('').host!                   # => raises DomainExtractor::InvalidURLError
 DomainExtractor.parse('asdfasdfds').domain!       # => raises DomainExtractor::InvalidURLError
-
-# Strict parsing helper mirrors legacy behaviour
-DomainExtractor.parse!('asdfasdfds')              # => raises DomainExtractor::InvalidURLError
 ```
 
 #### Safe Batch Processing
