@@ -369,7 +369,7 @@ DomainExtractor.parse_query_params(query_string)
 
 ```ruby
 urls = scrape_page_links(page)
-domains = urls.map { |url| DomainExtractor.parse(url)&.dig(:root_domain) }.compact.uniq
+domains = urls.map { |url| DomainExtractor.parse(url).root_domain }.compact.uniq
 ```
 
 **Analytics & Tracking**
@@ -377,7 +377,7 @@ domains = urls.map { |url| DomainExtractor.parse(url)&.dig(:root_domain) }.compa
 ```ruby
 referrer = request.referrer
 parsed = DomainExtractor.parse(referrer)
-track_event('page_view', source_domain: parsed[:root_domain]) if parsed
+track_event('page_view', source_domain: parsed[:root_domain])
 ```
 
 **Domain Validation**
@@ -386,7 +386,7 @@ track_event('page_view', source_domain: parsed[:root_domain]) if parsed
 def internal_link?(url, base_domain)
   return false unless DomainExtractor.valid?(url)
 
-  DomainExtractor.parse(url)[:root_domain] == base_domain
+  DomainExtractor.parse(url).root_domain == base_domain
 end
 ```
 
