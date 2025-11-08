@@ -406,7 +406,7 @@ View [performance analysis](https://github.com/opensite-ai/domain_extractor/blob
 
 ## Requirements
 
-- Ruby 3.0.0 or higher
+- Ruby 3.2.0 or higher
 - public_suffix gem (~> 6.0)
 
 ## Contributing
