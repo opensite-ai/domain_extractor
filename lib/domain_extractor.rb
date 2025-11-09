@@ -9,6 +9,13 @@ require_relative 'domain_extractor/parsed_url'
 require_relative 'domain_extractor/parser'
 require_relative 'domain_extractor/query_params'
 
+# Conditionally load Rails validator if ActiveModel is available
+begin
+  require_relative 'domain_extractor/domain_validator'
+rescue LoadError
+  # ActiveModel not available - skip loading validator
+end
+
 # DomainExtractor provides a high-performance API for url parsing and domain parsing.
 # It exposes simple helpers for single URL normalization, domain extraction, and batch operations.
 module DomainExtractor

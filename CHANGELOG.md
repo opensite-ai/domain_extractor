@@ -5,7 +5,84 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.5] - 2025-11-09
+
+### Added Rails Integration - Custom ActiveModel Validator
+
+Added a comprehensive custom ActiveModel validator for declarative URL and domain validation in Rails applications. The validator integrates seamlessly with Rails 6, 7, and 8.
+
+#### Features
+
+**Validation Modes:**
+- `:standard` - Validates any parseable URL (default mode)
+- `:root_domain` - Only allows root domains without subdomains (e.g., `example.com` ✅, `shop.example.com` ❌)
+- `:root_or_custom_subdomain` - Allows root or custom subdomains but excludes `www` subdomain (e.g., `example.com` ✅, `shop.example.com` ✅, `www.example.com` ❌)
+
+**Protocol Options:**
+- `use_protocol` (default: `true`) - Controls whether protocol (http/https) is required in the URL
+- `use_https` (default: `true`) - Controls whether HTTPS is required (only relevant when `use_protocol` is true)
+
+**Usage Examples:**
+```ruby
+# Standard validation - any valid URL
+validates :url, domain: { validation: :standard }
+
+# Root domain only, no subdomains
+validates :primary_domain, domain: { validation: :root_domain }
+
+# Custom subdomains allowed, but not www
+validates :custom_domain, domain: { validation: :root_or_custom_subdomain }
+
+# Flexible protocol requirements
+validates :domain, domain: {
+  validation: :root_domain,
+  use_protocol: false,
+  use_https: false
+}
+```
+
+#### Implementation Details
+
+- **Zero Configuration**: Automatically loads when ActiveModel is available
+- **Graceful Degradation**: Validator only loads in Rails environments; works independently in non-Rails contexts
+- **Clean Error Messages**: Provides clear, actionable validation error messages
+- **Performance**: Leverages existing DomainExtractor parsing engine with minimal overhead
+- **Thread-Safe**: Stateless validation logic safe for concurrent use
+
+#### Compatibility
+
+- **Rails 6.0+**: Full compatibility with ActiveModel::EachValidator API
+- **Rails 7.0+**: Compatible with modern errors API
+- **Rails 8.0+**: No breaking changes, fully supported
+- **Non-Rails**: Works with any application using ActiveModel (Sinatra, Hanami, etc.)
+
+#### Code Quality
+
+- **100% Test Coverage**: 35 comprehensive test cases covering all validation modes and options
+- **RuboCop Clean**: Zero offenses, follows Ruby style guide
+- **Well-Documented**: Extensive README section with real-world examples
+- **Type-Safe**: Proper argument validation with clear error messages
+
+#### Documentation
+
+- Added comprehensive **Rails Integration** section to README.md
+- Includes real-world examples:
+  - Multi-tenant applications with custom domains
+  - E-commerce store configuration
+  - API service registration
+  - Domain allowlists with flexible protocols
+- Documents all validation modes, options, and error messages
+- Shows integration with other Rails validators
+
+#### Use Cases
+
+Perfect for Rails applications requiring:
+- Multi-tenant custom domain validation
+- Secure URL validation (HTTPS enforcement)
+- Subdomain-based architecture validation
+- API endpoint domain validation
+- Domain allowlist/blocklist management
+- Custom subdomain requirements
 
 ## [0.1.8] - 2025-10-31
 

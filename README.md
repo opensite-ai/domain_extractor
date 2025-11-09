@@ -355,6 +355,275 @@ DomainExtractor.parse_query_params(query_string)
 # Returns: Hash of query parameters
 ```
 
+## Rails Integration
+
+DomainExtractor provides a custom ActiveModel validator for Rails applications, enabling declarative URL/domain validation with multiple modes and options.
+
+### Installation
+
+The Rails validator is automatically available when using DomainExtractor in a Rails application (or any application with ActiveModel). No additional setup is required.
+
+### Basic Usage
+
+```ruby
+class Website < ApplicationRecord
+  # Standard validation - accepts any valid URL
+  validates :url, domain: { validation: :standard }
+end
+```
+
+### Validation Modes
+
+#### `:standard` - Accept Any Valid URL
+
+Validates that the URL is parseable and valid. This is the default mode.
+
+```ruby
+class Website < ApplicationRecord
+  validates :url, domain: { validation: :standard }
+end
+
+# Valid URLs
+website = Website.new(url: 'https://mysite.com')        # ✅ Valid
+website = Website.new(url: 'https://shop.mysite.com')   # ✅ Valid
+website = Website.new(url: 'https://www.mysite.com')    # ✅ Valid
+website = Website.new(url: 'https://api.staging.mysite.com') # ✅ Valid
+
+# Invalid URLs
+website = Website.new(url: 'not-a-url')                 # ❌ Invalid
+```
+
+#### `:root_domain` - Root Domain Only
+
+Only allows root domains without any subdomains.
+
+```ruby
+class PrimaryDomain < ApplicationRecord
+  validates :domain, domain: { validation: :root_domain }
+end
+
+# Valid URLs
+domain = PrimaryDomain.new(domain: 'https://mysite.com')      # ✅ Valid
+
+# Invalid URLs
+domain = PrimaryDomain.new(domain: 'https://shop.mysite.com') # ❌ Invalid (has subdomain)
+domain = PrimaryDomain.new(domain: 'https://www.mysite.com')  # ❌ Invalid (has www subdomain)
+```
+
+#### `:root_or_custom_subdomain` - Root or Custom Subdomain (No WWW)
+
+Allows root domains or custom subdomains, but specifically excludes the 'www' subdomain.
+
+```ruby
+class CustomDomain < ApplicationRecord
+  validates :url, domain: { validation: :root_or_custom_subdomain }
+end
+
+# Valid URLs
+domain = CustomDomain.new(url: 'https://mysite.com')       # ✅ Valid (root domain)
+domain = CustomDomain.new(url: 'https://shop.mysite.com')  # ✅ Valid (custom subdomain)
+domain = CustomDomain.new(url: 'https://api.mysite.com')   # ✅ Valid (custom subdomain)
+
+# Invalid URLs
+domain = CustomDomain.new(url: 'https://www.mysite.com')   # ❌ Invalid (www not allowed)
+```
+
+### Protocol Options
+
+#### `use_protocol` (default: `true`)
+
+Controls whether the protocol (http:// or https://) is required in the URL.
+
+```ruby
+class Website < ApplicationRecord
+  # Require protocol (default behavior)
+  validates :url, domain: { validation: :standard, use_protocol: true }
+
+  # Don't require protocol
+  validates :domain_without_protocol, domain: {
+    validation: :standard,
+    use_protocol: false
+  }
+end
+
+# With use_protocol: true (default)
+Website.new(url: 'https://mysite.com')  # ✅ Valid
+Website.new(url: 'mysite.com')          # ✅ Valid (auto-adds https://)
+
+# With use_protocol: false
+Website.new(domain_without_protocol: 'mysite.com')        # ✅ Valid
+Website.new(domain_without_protocol: 'https://mysite.com') # ✅ Valid (protocol stripped)
+```
+
+#### `use_https` (default: `true`)
+
+Controls whether HTTPS is required. Only relevant when `use_protocol` is `true`.
+
+```ruby
+class SecureWebsite < ApplicationRecord
+  # Require HTTPS (default behavior)
+  validates :url, domain: { validation: :standard, use_https: true }
+end
+
+class FlexibleWebsite < ApplicationRecord
+  # Allow both HTTP and HTTPS
+  validates :url, domain: { validation: :standard, use_https: false }
+end
+
+# With use_https: true (default)
+SecureWebsite.new(url: 'https://mysite.com')  # ✅ Valid
+SecureWebsite.new(url: 'http://mysite.com')   # ❌ Invalid
+
+# With use_https: false
+FlexibleWebsite.new(url: 'https://mysite.com') # ✅ Valid
+FlexibleWebsite.new(url: 'http://mysite.com')  # ✅ Valid
+```
+
+### Real-World Examples
+
+#### Multi-Tenant Application with Custom Domains
+
+```ruby
+class Tenant < ApplicationRecord
+  # Allow custom subdomains but not www
+  validates :custom_domain, domain: {
+    validation: :root_or_custom_subdomain,
+    use_https: true
+  }
+
+  # Primary domain must be root only
+  validates :primary_domain, domain: {
+    validation: :root_domain,
+    use_protocol: false
+  }
+end
+
+# Valid configurations
+tenant = Tenant.create(
+  custom_domain: 'https://shop.example.com',    # ✅ Custom subdomain
+  primary_domain: 'example.com'                 # ✅ Root without protocol
+)
+
+# Invalid configurations
+tenant = Tenant.new(
+  custom_domain: 'https://www.example.com'      # ❌ www not allowed
+)
+```
+
+#### E-commerce Store Configuration
+
+```ruby
+class Store < ApplicationRecord
+  # Main storefront can be root or custom subdomain
+  validates :storefront_url, domain: {
+    validation: :root_or_custom_subdomain,
+    use_https: true
+  }
+
+  # Admin panel must be a subdomain (not root, not www)
+  validates :admin_url, domain: { validation: :standard }
+  validate :admin_must_have_subdomain
+
+  private
+
+  def admin_must_have_subdomain
+    parsed = DomainExtractor.parse(admin_url)
+    if parsed.valid? && !parsed.subdomain?
+      errors.add(:admin_url, 'must have a subdomain')
+    end
+  end
+end
+```
+
+#### API Service Registration
+
+```ruby
+class ApiEndpoint < ApplicationRecord
+  # API endpoints must use HTTPS
+  validates :url, domain: {
+    validation: :standard,
+    use_https: true
+  }
+
+  # Custom validation for API subdomain
+  validate :must_be_api_subdomain
+
+  private
+
+  def must_be_api_subdomain
+    return unless url.present?
+
+    parsed = DomainExtractor.parse(url)
+    if parsed.valid? && parsed.subdomain.present?
+      unless parsed.subdomain.start_with?('api')
+        errors.add(:url, 'must use an api subdomain')
+      end
+    end
+  end
+end
+```
+
+#### Domain Allowlist with Flexible Protocol
+
+```ruby
+class AllowedDomain < ApplicationRecord
+  # Accept domains with or without protocol
+  validates :domain, domain: {
+    validation: :root_domain,
+    use_protocol: false,
+    use_https: false
+  }
+end
+
+# All these are valid
+AllowedDomain.create(domain: 'example.com')
+AllowedDomain.create(domain: 'https://example.com')
+AllowedDomain.create(domain: 'http://example.com')
+```
+
+### Combining with Other Validators
+
+The domain validator works seamlessly with other Rails validators:
+
+```ruby
+class Website < ApplicationRecord
+  validates :url, presence: true,
+                  domain: { validation: :standard },
+                  uniqueness: { case_sensitive: false }
+
+  validates :backup_url, domain: {
+    validation: :root_or_custom_subdomain,
+    use_https: true
+  }, allow_blank: true
+end
+```
+
+### Error Messages
+
+The validator provides clear, specific error messages:
+
+```ruby
+website = Website.new(url: 'not-a-url')
+website.valid?
+website.errors[:url]
+# => ["is not a valid URL"]
+
+domain = PrimaryDomain.new(domain: 'https://shop.example.com')
+domain.valid?
+domain.errors[:domain]
+# => ["must be a root domain (no subdomains allowed)"]
+
+custom = CustomDomain.new(url: 'https://www.example.com')
+custom.valid?
+custom.errors[:url]
+# => ["cannot use www subdomain"]
+
+secure = SecureWebsite.new(url: 'http://example.com')
+secure.valid?
+secure.errors[:url]
+# => ["must use https://"]
+```
+
 ## Use Cases
 
 **Web Scraping**
