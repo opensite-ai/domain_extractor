@@ -5,24 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.5] - 2025-11-09
+## [0.2.6] - 2025-11-09
 
-### Added Rails Integration - Custom ActiveModel Validator
+### Fixed - Rails Validator Registration
 
-Added a comprehensive custom ActiveModel validator for declarative URL and domain validation in Rails applications. The validator integrates seamlessly with Rails 6, 7, and 8.
+**CRITICAL FIX**: Moved `DomainValidator` class to the **top-level namespace** (from `DomainExtractor::DomainValidator`) to ensure Rails can properly autoload and find the validator.
 
-#### Features
+#### The Problem
+
+Version 0.2.5 defined the validator as `DomainExtractor::DomainValidator`, which caused Rails to fail with:
+
+```
+ArgumentError: Unknown validator: 'DomainValidator'
+NameError: uninitialized constant Website::DomainValidator
+```
+
+This occurred because when using `validates :url, domain: { ... }`, Rails searches for `DomainValidator` in:
+
+1. The model's namespace (e.g., `Website::DomainValidator`)
+2. The top-level namespace (`::DomainValidator`)
+3. ActiveModel::Validations namespace
+
+It does **not** search module namespaces like `DomainExtractor::`.
+
+#### The Solution
+
+- Moved `DomainValidator` to top-level namespace where Rails can find it
+- Added `DomainExtractor::DomainValidator` as an alias for backward compatibility
+- All functionality remains identical; only the class location changed
+
+#### Verification
+
+- All 151 tests pass including 35 validator-specific tests
+- RuboCop clean with zero offenses
+- Verified in production Rails 8 application
+- Confirmed working with `validates :url, domain: { validation: :root_or_custom_subdomain }`
+
+## [0.2.5] - 2025-11-09 [YANKED]
+
+**This version was yanked due to validator registration issue. Use 0.2.6 instead.**
+
+### Added Rails Integration - Custom ActiveModel Validator (BROKEN)
+
+Added a comprehensive custom ActiveModel validator for declarative URL and domain validation in Rails applications. However, the validator was incorrectly namespaced and did not work in Rails applications.
+
+#### Features (Broken in 0.2.5)
 
 **Validation Modes:**
+
 - `:standard` - Validates any parseable URL (default mode)
 - `:root_domain` - Only allows root domains without subdomains (e.g., `example.com` ✅, `shop.example.com` ❌)
 - `:root_or_custom_subdomain` - Allows root or custom subdomains but excludes `www` subdomain (e.g., `example.com` ✅, `shop.example.com` ✅, `www.example.com` ❌)
 
 **Protocol Options:**
+
 - `use_protocol` (default: `true`) - Controls whether protocol (http/https) is required in the URL
 - `use_https` (default: `true`) - Controls whether HTTPS is required (only relevant when `use_protocol` is true)
 
 **Usage Examples:**
+
 ```ruby
 # Standard validation - any valid URL
 validates :url, domain: { validation: :standard }
@@ -77,6 +118,7 @@ validates :domain, domain: {
 #### Use Cases
 
 Perfect for Rails applications requiring:
+
 - Multi-tenant custom domain validation
 - Secure URL validation (HTTPS enforcement)
 - Subdomain-based architecture validation

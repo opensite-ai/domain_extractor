@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe DomainExtractor::DomainValidator do
+RSpec.describe DomainValidator do
   # Mock record class for testing
   let(:record_class) do
     Class.new do
