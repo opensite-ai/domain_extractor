@@ -13,6 +13,8 @@ Use **DomainExtractor** whenever you need a dependable tld parser for tricky mul
 ✅ **Accurate Multi-part TLD Parser** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
 ✅ **Nested Subdomain Extraction** - Correctly parses multi-level subdomains (api.staging.example.com)
 ✅ **Smart URL Normalization** - Automatically handles URLs with or without schemes
+✅ **Powerful URL Formatting** - Transform and standardize URLs with flexible options
+✅ **Rails Integration** - Custom ActiveModel validator for declarative URL validation
 ✅ **Query Parameter Parsing** - Parse query strings into structured hashes
 ✅ **Batch Processing** - Parse multiple URLs efficiently
 ✅ **IP Address Detection** - Identifies and handles IPv4 and IPv6 addresses
@@ -353,6 +355,241 @@ DomainExtractor.parse_query_params(query_string)
 # => Parses a query string into a hash of parameters.
 
 # Returns: Hash of query parameters
+```
+
+```ruby
+DomainExtractor.format(url_string, **options)
+
+# => Formats a URL according to the specified options.
+
+# Returns: Formatted URL string or nil if invalid
+# Options:
+#   :validation (:standard, :root_domain, :root_or_custom_subdomain)
+#   :use_protocol (true/false)
+#   :use_https (true/false)
+#   :use_trailing_slash (true/false)
+```
+
+## URL Formatting
+
+DomainExtractor provides powerful URL formatting capabilities to normalize, transform, and standardize URLs according to your application's requirements.
+
+### Basic Formatting
+
+```ruby
+# Remove trailing slash (default)
+DomainExtractor.format('https://example.com/')
+# => 'https://example.com'
+
+# Strip paths and query parameters
+DomainExtractor.format('https://example.com/path?query=value')
+# => 'https://example.com'
+
+# Normalize to HTTPS
+DomainExtractor.format('http://example.com')
+# => 'https://example.com'
+```
+
+### Validation Modes
+
+#### Standard Mode (Default)
+
+Preserves the full host as-is while normalizing protocol and trailing slashes.
+
+```ruby
+DomainExtractor.format('https://shop.example.com')
+# => 'https://shop.example.com'
+
+DomainExtractor.format('https://www.example.com/')
+# => 'https://www.example.com'
+
+DomainExtractor.format('https://api.staging.example.com')
+# => 'https://api.staging.example.com'
+```
+
+#### Root Domain Mode
+
+Strips all subdomains and returns only the root domain.
+
+```ruby
+DomainExtractor.format('https://shop.example.com', validation: :root_domain)
+# => 'https://example.com'
+
+DomainExtractor.format('https://www.example.com/', validation: :root_domain)
+# => 'https://example.com'
+
+DomainExtractor.format('https://api.staging.example.com', validation: :root_domain)
+# => 'https://example.com'
+
+# Works with multi-part TLDs
+DomainExtractor.format('https://shop.example.co.uk', validation: :root_domain)
+# => 'https://example.co.uk'
+```
+
+#### Root or Custom Subdomain Mode
+
+Preserves custom subdomains but specifically removes the 'www' subdomain.
+
+```ruby
+DomainExtractor.format('https://example.com', validation: :root_or_custom_subdomain)
+# => 'https://example.com'
+
+DomainExtractor.format('https://shop.example.com', validation: :root_or_custom_subdomain)
+# => 'https://shop.example.com'
+
+# Strips www subdomain
+DomainExtractor.format('https://www.example.com', validation: :root_or_custom_subdomain)
+# => 'https://example.com'
+
+DomainExtractor.format('https://api.example.com', validation: :root_or_custom_subdomain)
+# => 'https://api.example.com'
+```
+
+### Protocol Options
+
+#### Without Protocol
+
+Remove the protocol entirely from the output.
+
+```ruby
+DomainExtractor.format('https://example.com', use_protocol: false)
+# => 'example.com'
+
+DomainExtractor.format('https://shop.example.com', use_protocol: false)
+# => 'shop.example.com'
+
+# Combine with root_domain
+DomainExtractor.format('https://shop.example.com',
+                       validation: :root_domain,
+                       use_protocol: false)
+# => 'example.com'
+```
+
+#### HTTP vs HTTPS
+
+Control which protocol to use in the output.
+
+```ruby
+# Default: use HTTPS
+DomainExtractor.format('http://example.com')
+# => 'https://example.com'
+
+# Allow HTTP
+DomainExtractor.format('https://example.com', use_https: false)
+# => 'http://example.com'
+
+DomainExtractor.format('http://example.com', use_https: false)
+# => 'http://example.com'
+```
+
+### Trailing Slash Options
+
+```ruby
+# Remove trailing slash (default)
+DomainExtractor.format('https://example.com/')
+# => 'https://example.com'
+
+# Add trailing slash
+DomainExtractor.format('https://example.com', use_trailing_slash: true)
+# => 'https://example.com/'
+
+DomainExtractor.format('https://example.com/', use_trailing_slash: true)
+# => 'https://example.com/'
+
+# Works with other options
+DomainExtractor.format('https://shop.example.com',
+                       validation: :root_domain,
+                       use_trailing_slash: true)
+# => 'https://example.com/'
+```
+
+### Combined Options
+
+Mix and match options for precise URL formatting:
+
+```ruby
+# Root domain, no protocol, with trailing slash
+DomainExtractor.format('https://shop.example.com/path',
+                       validation: :root_domain,
+                       use_protocol: false,
+                       use_trailing_slash: true)
+# => 'example.com/'
+
+# Strip www, use HTTP, with trailing slash
+DomainExtractor.format('https://www.example.com',
+                       validation: :root_or_custom_subdomain,
+                       use_https: false,
+                       use_trailing_slash: true)
+# => 'http://example.com/'
+
+# Standard mode, no protocol, with trailing slash
+DomainExtractor.format('https://api.example.com',
+                       use_protocol: false,
+                       use_trailing_slash: true)
+# => 'api.example.com/'
+```
+
+### Real-World Use Cases
+
+#### Canonical URL Generation
+
+```ruby
+def canonical_url(url)
+  DomainExtractor.format(url,
+                         validation: :root_or_custom_subdomain,
+                         use_https: true,
+                         use_trailing_slash: false)
+end
+
+canonical_url('http://www.example.com/')      # => 'https://example.com'
+canonical_url('https://shop.example.com/')    # => 'https://shop.example.com'
+```
+
+#### Domain Normalization for Allowlists
+
+```ruby
+def normalize_domain_for_allowlist(url)
+  DomainExtractor.format(url,
+                         validation: :root_domain,
+                         use_protocol: false)
+end
+
+normalize_domain_for_allowlist('https://shop.example.com/path')  # => 'example.com'
+normalize_domain_for_allowlist('http://www.example.com')         # => 'example.com'
+```
+
+#### Multi-Tenant URL Standardization
+
+```ruby
+class Tenant < ApplicationRecord
+  before_validation :normalize_custom_domain
+
+  private
+
+  def normalize_custom_domain
+    return if custom_domain.blank?
+
+    self.custom_domain = DomainExtractor.format(
+      custom_domain,
+      validation: :root_or_custom_subdomain,
+      use_https: true,
+      use_trailing_slash: false
+    )
+  end
+end
+```
+
+#### API Endpoint Formatting
+
+```ruby
+def format_api_endpoint(url)
+  DomainExtractor.format(url,
+                         validation: :standard,
+                         use_https: true,
+                         use_trailing_slash: true)
+end
+
+format_api_endpoint('http://api.example.com')  # => 'https://api.example.com/'
 ```
 
 ## Rails Integration

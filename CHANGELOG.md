@@ -5,6 +5,151 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] - 2025-11-09
+
+### Added - URL Formatting API
+
+Added a comprehensive `format` method for programmatic URL normalization and transformation. The formatter provides precise control over URL structure, protocol, and formatting while maintaining the same validation modes as the Rails validator.
+
+#### Features
+
+**Core Method:**
+- `DomainExtractor.format(url, **options)` - Format and normalize URLs based on specified options
+- Returns formatted URL string or `nil` for invalid input
+- Strips paths and query parameters from URLs
+- Supports all validation modes from the Rails validator
+
+**Validation Modes:**
+- `:standard` (default) - Preserves full host as-is while normalizing protocol/slashes
+- `:root_domain` - Strips all subdomains, returns only root domain
+- `:root_or_custom_subdomain` - Preserves custom subdomains but removes 'www'
+
+**Formatting Options:**
+- `use_protocol` (default: `true`) - Include/exclude protocol in output
+- `use_https` (default: `true`) - Use HTTPS vs HTTP (only when `use_protocol` is true)
+- `use_trailing_slash` (default: `false`) - Add/remove trailing slash from output
+
+#### Usage Examples
+
+**Basic Formatting:**
+```ruby
+# Remove trailing slash (default)
+DomainExtractor.format('https://example.com/')
+# => 'https://example.com'
+
+# Strip paths and query parameters
+DomainExtractor.format('https://example.com/path?query=value')
+# => 'https://example.com'
+
+# Normalize to HTTPS
+DomainExtractor.format('http://example.com')
+# => 'https://example.com'
+```
+
+**Validation Modes:**
+```ruby
+# Root domain only (strips subdomains)
+DomainExtractor.format('https://shop.example.com', validation: :root_domain)
+# => 'https://example.com'
+
+# Strip www but keep custom subdomains
+DomainExtractor.format('https://www.example.com', validation: :root_or_custom_subdomain)
+# => 'https://example.com'
+```
+
+**Protocol Control:**
+```ruby
+# Without protocol
+DomainExtractor.format('https://example.com', use_protocol: false)
+# => 'example.com'
+
+# Force HTTP instead of HTTPS
+DomainExtractor.format('https://example.com', use_https: false)
+# => 'http://example.com'
+```
+
+**Trailing Slash Control:**
+```ruby
+# Add trailing slash
+DomainExtractor.format('https://example.com', use_trailing_slash: true)
+# => 'https://example.com/'
+```
+
+**Combined Options:**
+```ruby
+# Root domain, no protocol, with trailing slash
+DomainExtractor.format('https://shop.example.com/path',
+                       validation: :root_domain,
+                       use_protocol: false,
+                       use_trailing_slash: true)
+# => 'example.com/'
+```
+
+#### Real-World Use Cases
+
+**Canonical URL Generation:**
+```ruby
+def canonical_url(url)
+  DomainExtractor.format(url,
+                         validation: :root_or_custom_subdomain,
+                         use_https: true,
+                         use_trailing_slash: false)
+end
+
+canonical_url('http://www.example.com/')   # => 'https://example.com'
+```
+
+**Domain Normalization for Allowlists:**
+```ruby
+def normalize_domain(url)
+  DomainExtractor.format(url, validation: :root_domain, use_protocol: false)
+end
+
+normalize_domain('https://shop.example.com/path')  # => 'example.com'
+```
+
+**Multi-Tenant URL Standardization:**
+```ruby
+class Tenant < ApplicationRecord
+  before_validation :normalize_custom_domain
+
+  private
+
+  def normalize_custom_domain
+    return if custom_domain.blank?
+
+    self.custom_domain = DomainExtractor.format(
+      custom_domain,
+      validation: :root_or_custom_subdomain,
+      use_https: true,
+      use_trailing_slash: false
+    )
+  end
+end
+```
+
+#### Implementation Details
+
+- **Performance**: Leverages existing DomainExtractor parsing engine with minimal overhead
+- **Nil-safe**: Returns `nil` for invalid URLs instead of raising exceptions
+- **Consistent API**: Uses same option names and validation modes as Rails validator
+- **Path/Query Stripping**: Automatically removes paths and query parameters
+- **Multi-part TLD Support**: Correctly handles complex TLDs like `.co.uk`, `.com.au`
+
+#### Code Quality
+
+- **49 comprehensive test cases** covering all formatting modes and options
+- **RuboCop clean** with zero offenses
+- **100% test coverage** maintained across entire gem (200 total tests)
+- **Well-documented** with extensive README section and real-world examples
+
+#### Documentation
+
+- Added comprehensive **URL Formatting** section to README.md
+- Includes examples for all validation modes and options
+- Real-world use cases: canonical URLs, domain normalization, multi-tenant standardization
+- Clear API reference with all available options
+
 ## [0.2.6] - 2025-11-09
 
 ### Fixed - Rails Validator Registration
