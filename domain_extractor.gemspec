@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   # Files to include in the gem
   spec.files = Dir.glob('{lib,spec}/**/*') + %w[
     README.md
-    LICENSE.txt
+    LICENSE
     CHANGELOG.md
     .rubocop.yml
   ]
@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   DESC
   spec.email = 'dev@opensite.ai'
   spec.homepage = 'https://github.com/opensite-ai/domain_extractor'
-  spec.license = 'MIT'
+  spec.license = 'BSD-3-Clause'
   spec.metadata = {
     'source_code_uri' => 'https://github.com/opensite-ai/domain_extractor',
     'changelog_uri' => 'https://github.com/opensite-ai/domain_extractor/blob/master/CHANGELOG.md',
@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 3.2.0'
   spec.require_paths = ['lib']
-  spec.extra_rdoc_files = ['README.md', 'LICENSE.txt', 'CHANGELOG.md']
+  spec.extra_rdoc_files = ['README.md', 'LICENSE', 'CHANGELOG.md']
   spec.rdoc_options = [
     '--main', 'README.md',
     '--title', 'DomainExtractor - URL Domain Component Extractor',
