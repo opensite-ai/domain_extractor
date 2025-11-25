@@ -1,3 +1,5 @@
+<img width="100%" height="auto" alt="Domain Extractor and Parsing Ruby Gem" src="https://github.com/user-attachments/assets/b3fbe605-3a3e-4d45-b0ed-b061a807d61b" />
+
 # DomainExtractor
 
 [![Gem Version](https://badge.fury.io/rb/domain_extractor.svg?v=020)](https://badge.fury.io/rb/domain_extractor)
