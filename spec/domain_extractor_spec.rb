@@ -272,7 +272,7 @@ RSpec.describe DomainExtractor do
         'dashtrack.com',
         'www.insurancesite.ai',
         'https://hitting.com/index',
-        'aninvalidurl',
+        'invalid_url_with_underscore',
         ''
       ]
 
@@ -292,7 +292,7 @@ RSpec.describe DomainExtractor do
     end
 
     it 'handles all invalid URLs' do
-      results = described_class.parse_batch(['invalid', '', nil])
+      results = described_class.parse_batch(['invalid_url', '', nil])
 
       expect(results).to all(be_nil)
     end

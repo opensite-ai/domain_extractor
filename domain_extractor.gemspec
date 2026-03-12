@@ -39,7 +39,8 @@ Gem::Specification.new do |spec|
     'allowed_push_host' => 'https://rubygems.org'
   }
 
-  spec.add_dependency 'public_suffix', '~> 6.0'
+  spec.add_dependency 'base64', '~> 0.3.0'
+  spec.add_dependency 'public_suffix', '>= 6.0', '< 8.0'
 
   spec.required_ruby_version = '>= 3.2.0'
   spec.require_paths = ['lib']

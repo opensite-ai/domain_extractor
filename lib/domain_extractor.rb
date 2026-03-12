@@ -9,6 +9,7 @@ require_relative 'domain_extractor/parsed_url'
 require_relative 'domain_extractor/parser'
 require_relative 'domain_extractor/query_params'
 require_relative 'domain_extractor/formatter'
+require_relative 'domain_extractor/uri_helpers'
 
 # Conditionally load Rails validator if ActiveModel is available
 begin
@@ -98,5 +99,34 @@ module DomainExtractor
     end
 
     alias parse_query parse_query_params
+
+    # Generate Basic Authentication header
+    # @param username [String] The username
+    # @param password [String] The password
+    # @return [String] The Authorization header value
+    def basic_auth_header(username, password)
+      URIHelpers.basic_auth_header(username, password)
+    end
+
+    # Generate Bearer token header
+    # @param token [String] The bearer token
+    # @return [String] The Authorization header value
+    def bearer_auth_header(token)
+      URIHelpers.bearer_auth_header(token)
+    end
+
+    # Encode a credential for use in URLs (percent-encoding)
+    # @param value [String] The value to encode
+    # @return [String] Percent-encoded value
+    def encode_credential(value)
+      URIHelpers.encode_credential(value)
+    end
+
+    # Decode a percent-encoded credential
+    # @param value [String] The encoded value
+    # @return [String] Decoded value
+    def decode_credential(value)
+      URIHelpers.decode_credential(value)
+    end
   end
 end

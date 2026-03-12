@@ -11,16 +11,20 @@ Use **DomainExtractor** whenever you need a dependable tld parser for tricky mul
 
 ## Why DomainExtractor?
 
+✅ **URI-Compatible Accessors** - Covers common absolute-URL workflows with a Ruby `URI`-style API
+✅ **Authentication Extraction** - Parse credentials from Redis, database, FTP, and API URLs
 ✅ **Accurate Multi-part TLD Parser** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
 ✅ **Nested Subdomain Extraction** - Correctly parses multi-level subdomains (api.staging.example.com)
 ✅ **Smart URL Normalization** - Automatically handles URLs with or without schemes
 ✅ **Powerful URL Formatting** - Transform and standardize URLs with flexible options
 ✅ **Rails Integration** - Custom ActiveModel validator for declarative URL validation
 ✅ **Query Parameter Parsing** - Parse query strings into structured hashes
+✅ **Authentication Helpers** - Generate Basic Auth and Bearer token headers
 ✅ **Batch Processing** - Parse multiple URLs efficiently
 ✅ **IP Address Detection** - Identifies and handles IPv4 and IPv6 addresses
+✅ **Benchmark-Backed Performance** - Auth helpers run in low microseconds; full parses are documented in the included benchmark suite
 ✅ **Zero Configuration** - Works out of the box with sensible defaults
-✅ **Well-Tested** - Comprehensive test suite covering edge cases
+✅ **Well-Tested** - 200+ comprehensive test cases covering all scenarios
 
 ## Installation
 
@@ -370,6 +374,235 @@ DomainExtractor.format(url_string, **options)
 #   :use_https (true/false)
 #   :use_trailing_slash (true/false)
 ```
+
+## Authentication Extraction
+
+DomainExtractor provides comprehensive authentication extraction from URLs, supporting all major database systems, caching solutions, and file transfer protocols.
+
+### Supported URL Schemes
+
+**Database Connections:**
+- PostgreSQL: `postgresql://user:pass@host:5432/dbname`
+- MySQL: `mysql://user:pass@host:3306/database`
+- MongoDB: `mongodb+srv://user:pass@cluster.mongodb.net/db`
+- CockroachDB: `postgresql://user:pass@host:26257/db`
+
+**Caching & Message Queues:**
+- Redis: `redis://user:pass@host:6379/0`
+- Redis SSL: `rediss://:password@host:6380`
+
+**File Transfer:**
+- FTP: `ftp://user:pass@host/path`
+- SFTP: `sftp://user:pass@host:22/path`
+- FTPS: `ftps://user:pass@host:990/path`
+
+**HTTP/HTTPS:**
+- Basic Auth: `https://user:pass@api.example.com`
+
+### Basic Usage
+
+```ruby
+# Parse Redis URL
+redis_url = 'rediss://default:my_secret_pw@redis.cloud:6385/0'
+result = DomainExtractor.parse(redis_url)
+
+result.scheme           # => "rediss"
+result.user             # => "default"
+result.password         # => "my_secret_pw"
+result.host             # => "redis.cloud"
+result.port             # => 6385
+result.path             # => "/0"
+
+# Parse PostgreSQL URL
+db_url = 'postgresql://appuser:SecurePass@db.prod.internal:5432/production'
+result = DomainExtractor.parse(db_url)
+
+result.user             # => "appuser"
+result.password         # => "SecurePass"
+result.host             # => "db.prod.internal"
+result.port             # => 5432
+result.path             # => "/production"
+```
+
+### Special Character Handling
+
+DomainExtractor automatically handles percent-encoded special characters in credentials:
+
+```ruby
+# Password with special characters: P@ss:word!
+url = 'redis://user:P%40ss%3Aword%21@localhost:6379'
+result = DomainExtractor.parse(url)
+
+result.password         # => "P%40ss%3Aword%21" (encoded)
+result.decoded_password # => "P@ss:word!" (decoded, ready to use)
+
+# Username as email address
+url = 'https://user%40domain.com:password@api.example.com'
+result = DomainExtractor.parse(url)
+
+result.user             # => "user%40domain.com"
+result.decoded_user     # => "user@domain.com"
+```
+
+### Authentication Helper Methods
+
+**Generate Basic Authentication Headers:**
+
+```ruby
+# From parsed URL
+result = DomainExtractor.parse('https://user:pass@api.example.com')
+auth_header = result.basic_auth_header
+# => "Basic dXNlcjpwYXNz"
+
+# Use in HTTP request
+require 'net/http'
+uri = URI('https://api.example.com/endpoint')
+request = Net::HTTP::Get.new(uri)
+request['Authorization'] = auth_header
+
+# Or use module method directly
+header = DomainExtractor.basic_auth_header('username', 'password')
+# => "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+```
+
+**Generate Bearer Token Headers:**
+
+```ruby
+token = 'eyJhbGciOiJIUzI1NiIs...'
+header = DomainExtractor.bearer_auth_header(token)
+# => "Bearer eyJhbGciOiJIUzI1NiIs..."
+
+# Use in API request
+request['Authorization'] = header
+```
+
+**Encode/Decode Credentials:**
+
+```ruby
+# Encode credentials for URL use
+password = 'P@ss:word!'
+encoded = DomainExtractor.encode_credential(password)
+# => "P%40ss%3Aword%21"
+
+# Build URL with encoded credentials
+url = "redis://user:#{encoded}@localhost:6379"
+
+# Decode credentials
+decoded = DomainExtractor.decode_credential(encoded)
+# => "P@ss:word!"
+```
+
+### Real-World Examples
+
+**Database Connection Configuration:**
+
+```ruby
+class DatabaseConfig
+  def self.from_url(url)
+    config = DomainExtractor.parse(url)
+
+    {
+      adapter: config.scheme.sub('postgresql', 'postgres'),
+      host: config.host,
+      port: config.port,
+      database: config.path&.sub('/', ''),
+      username: config.decoded_user,
+      password: config.decoded_password
+    }
+  end
+end
+
+# Usage
+db_url = ENV['DATABASE_URL']
+config = DatabaseConfig.from_url(db_url)
+# => { adapter: "postgres", host: "db.prod.internal", port: 5432, ... }
+```
+
+**Redis Connection Helper:**
+
+```ruby
+class RedisConnection
+  def self.from_url(url)
+    config = DomainExtractor.parse(url)
+
+    Redis.new(
+      host: config.host,
+      port: config.port || 6379,
+      password: config.decoded_password,
+      db: config.path&.sub('/', '')&.to_i || 0,
+      ssl: config.scheme == 'rediss'
+    )
+  end
+end
+
+# Usage
+redis = RedisConnection.from_url(ENV['REDIS_URL'])
+```
+
+**SFTP Deployment Script:**
+
+```ruby
+def deploy_via_sftp(url, local_path)
+  config = DomainExtractor.parse(url)
+
+  Net::SFTP.start(
+    config.host,
+    config.decoded_user,
+    password: config.decoded_password,
+    port: config.port || 22
+  ) do |sftp|
+    sftp.upload!(local_path, config.path)
+  end
+end
+
+# Usage
+deploy_via_sftp(ENV['DEPLOY_URL'], './build')
+```
+
+### Security Best Practices
+
+⚠️ **Important Security Considerations:**
+
+1. **Never hardcode credentials in source code**
+   ```ruby
+   # ❌ Bad
+   url = 'redis://user:password@localhost:6379'
+
+   # ✅ Good
+   url = ENV['REDIS_URL']
+   url = Rails.application.credentials.redis[:url]
+   ```
+
+2. **Use environment variables or secret managers**
+   ```ruby
+   # ✅ Good
+   db_config = DomainExtractor.parse(ENV['DATABASE_URL'])
+   redis_config = DomainExtractor.parse(ENV['REDIS_URL'])
+   ```
+
+3. **Never log URLs with credentials**
+   ```ruby
+   # ❌ Bad
+   logger.info("Connecting to #{database_url}")
+
+   # ✅ Good
+   config = DomainExtractor.parse(database_url)
+   logger.info("Connecting to #{config.host}:#{config.port}")
+   ```
+
+4. **Always use TLS/SSL for credential transmission**
+   ```ruby
+   # ✅ Good - Use rediss:// not redis://
+   url = 'rediss://user:pass@redis.cloud:6380'
+
+   # ✅ Good - Use postgresql:// with sslmode
+   url = 'postgresql://user:pass@db.cloud:5432/db?sslmode=require'
+   ```
+
+5. **Rotate credentials regularly**
+   - Use secret rotation services (AWS Secrets Manager, HashiCorp Vault)
+   - Never commit credentials to version control
+   - Use `.env` files with `.gitignore`
 
 ## URL Formatting
 
@@ -862,6 +1095,155 @@ secure.errors[:url]
 # => ["must use https://"]
 ```
 
+## URI-Compatible Access
+
+DomainExtractor covers the most common absolute-URL workflows people reach for Ruby's `URI` library for, while adding domain extraction, auth helpers, and formatting utilities.
+
+### Why Replace URI?
+
+**Performance:**
+- Included benchmarks measure roughly 5k-6k full parses/sec for common URLs on Ruby 3.4 / Apple Silicon
+- Auth helper methods remain microsecond-level operations
+- Domain extraction work happens in the same parse pass
+
+**Features:**
+- Common absolute-URL component accessors and setters
+- PLUS: Multi-part TLD parsing
+- PLUS: Domain component extraction
+- PLUS: Decoded credentials
+- PLUS: Authentication helpers
+- PLUS: URL formatting
+
+### Migration from URI
+
+**Low-friction migration for common absolute-URL use cases:**
+
+```ruby
+# Before (using URI)
+require 'uri'
+
+uri = URI.parse('https://user:pass@example.com:8080/path?query=value#section')
+uri.scheme    # => "https"
+uri.user      # => "user"
+uri.password  # => "pass"
+uri.host      # => "example.com"
+uri.port      # => 8080
+uri.path      # => "/path"
+uri.query     # => "query=value"
+uri.fragment  # => "section"
+
+# After (using DomainExtractor) - URI-style access plus domain helpers
+require 'domain_extractor'
+
+result = DomainExtractor.parse('https://user:pass@example.com:8080/path?query=value#section')
+result.scheme    # => "https"
+result.user      # => "user"
+result.password  # => "pass"
+result.host      # => "example.com"
+result.port      # => 8080
+result.path      # => "/path"
+result.query     # => "query=value"
+result.fragment  # => "section"
+
+# PLUS: Additional features not in URI along with each method
+#       also having `?` and `!` variants for custom behavior
+result.subdomain        # => nil
+result.domain           # => "example"
+result.tld              # => "com"
+result.root_domain      # => "example.com"
+result.decoded_user     # => "user"
+result.decoded_password # => "pass"
+result.basic_auth_header # => "Basic dXNlcjpwYXNz"
+```
+
+### URI Method Compatibility
+
+**Common absolute-URL URI methods are supported:**
+
+```ruby
+result = DomainExtractor.parse('https://api.example.com:8443/v1/users?page=2#results')
+
+# Component accessors
+result.scheme           # => "https"
+result.host             # => "api.example.com"
+result.hostname         # => "api.example.com"
+result.port             # => 8443
+result.path             # => "/v1/users"
+result.query            # => "page=2"
+result.fragment         # => "results"
+
+# Authentication
+result.user             # => nil
+result.password         # => nil
+result.userinfo         # => nil
+
+# URI state checks
+result.absolute?        # => true
+result.relative?        # => false  # bare hosts are normalized to https://
+
+# Default ports
+result.default_port     # => 443 (for https)
+
+# String conversion
+result.to_s             # => Full URL string
+result.to_str           # => Alias for to_s
+result.to_h             # => Hash representation
+```
+
+### Advanced URI Features
+
+**Proxy Detection:**
+
+```ruby
+# Automatically detects proxy from environment
+# Checks http_proxy, HTTP_PROXY, and no_proxy
+result = DomainExtractor.parse('https://api.example.com')
+proxy = result.find_proxy
+# => #<URI::HTTP http://proxy.company.com:8080> or nil
+```
+
+**URI Normalization:**
+
+```ruby
+result = DomainExtractor.parse('HTTP://EXAMPLE.COM:80/Path')
+normalized = result.normalize
+
+normalized.scheme  # => "http" (lowercased)
+normalized.host    # => "example.com" (lowercased)
+normalized.port    # => 80   (URI-compatible default port)
+normalized.to_s    # => "http://example.com/Path"
+```
+
+**URI Merging:**
+
+```ruby
+base = DomainExtractor.parse('https://example.com/api/v1/')
+relative = 'users/123'
+
+merged = base.merge(relative)
+merged.to_s  # => "https://example.com/api/v1/users/123"
+```
+
+### Component Setters
+
+**Modify URI components programmatically:**
+
+```ruby
+result = DomainExtractor.parse('http://example.com')
+
+# Set individual components
+result.scheme = 'https'
+result.host = 'secure.example.com'
+result.port = 8443
+result.path = '/api/endpoint'
+result.query = 'key=value'
+result.fragment = 'section'
+
+# Build complete URL
+result.build_url
+# => "https://secure.example.com:8443/api/endpoint?key=value#section"
+```
+
 ## Use Cases
 
 **Web Scraping**
@@ -893,8 +1275,8 @@ end
 
 Optimized for high-throughput production use:
 
-- **Single URL parsing**: 15-30μs per URL (50,000+ URLs/second)
-- **Batch processing**: 50,000+ URLs/second sustained throughput
+- **Single URL parsing**: the included benchmarks currently land around 170-280μs for common absolute URLs on Ruby 3.4 / Apple Silicon
+- **Batch processing**: the included benchmarks currently land around 5k-6k URLs/sec for common workloads, with larger batches becoming allocation-bound
 - **Memory efficient**: <100KB overhead, ~200 bytes per parse
 - **Thread-safe**: Stateless modules, safe for concurrent use
 - **Zero-allocation hot paths**: Frozen constants, pre-compiled regex
@@ -908,8 +1290,15 @@ View [performance analysis](https://github.com/opensite-ai/domain_extractor/blob
 | Multi-part TLD parser       | ✅              | ❌          | ❌           |
 | Subdomain extraction        | ✅              | ❌          | ❌           |
 | Domain component separation | ✅              | ❌          | ❌           |
-| Built-in url normalization  | ✅              | ❌          | ❌           |
+| Auth extraction & decoding  | ✅              | ❌          | ⚠️ (basic)   |
+| Authentication helpers      | ✅              | ❌          | ❌           |
+| Built-in url normalization  | ✅              | ❌          | ✅           |
+| URL formatting              | ✅              | ❌          | ❌           |
+| Proxy detection             | ✅              | ❌          | ✅           |
+| Performance profile         | Feature-rich single-pass parse | Varies | Faster raw parse |
+| Auth helper speed           | Microsecond-level | ❌        | ❌           |
 | Lightweight                 | ✅              | ❌          | ✅           |
+| Rails validator             | ✅              | ❌          | ❌           |
 
 ## Requirements
 

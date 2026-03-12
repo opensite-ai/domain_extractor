@@ -35,7 +35,7 @@ result.subdomain    # => nil
 result.domain       # => 'example'
 result.host         # => 'example.com'
 
-# Invalid URL (when constructed directly, parse() would raise)
+# Invalid URL (parse() returns an invalid ParsedURL instead of raising)
 parsed = DomainExtractor::ParsedURL.new(nil)
 parsed.subdomain    # => nil
 parsed.domain       # => nil
@@ -200,9 +200,7 @@ hash = result.to_hash
 ```ruby
 # Process referrer URLs in analytics pipeline
 def track_referrer(referrer_url)
-  parsed = DomainExtractor::ParsedURL.new(
-    DomainExtractor::Parser.call(referrer_url)
-  )
+  parsed = DomainExtractor.parse(referrer_url)
   
   return unless parsed.valid?
   
@@ -276,9 +274,7 @@ end
 urls = load_urls_from_database
 
 results = urls.map do |url|
-  parsed = DomainExtractor::ParsedURL.new(
-    DomainExtractor::Parser.call(url)
-  )
+  parsed = DomainExtractor.parse(url)
   
   {
     url: url,

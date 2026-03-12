@@ -2,23 +2,23 @@
 
 ## Overview
 
-This document details the performance optimizations implemented in the `domain_extractor` gem to achieve high-throughput URL parsing suitable for production use in the OpenSite platform.
+This document details the performance optimizations implemented in the `domain_extractor` gem and summarizes the current results from the included benchmark scripts.
 
 ## Performance Metrics
 
-### Current Performance (After Optimizations)
+### Current Performance (Ruby 3.4.7 on Apple Silicon)
 
 **Single URL Parsing:**
-- Simple domains: ~15-30μs (microseconds)
-- Complex domains with multi-part TLDs: ~18-20μs
-- IP addresses: ~3-7μs (fast path rejection)
+- Common absolute URLs: ~173-279μs (microseconds)
+- Localhost-style hosts: ~129μs
+- IP addresses: ~25μs (fast path rejection)
 
 **Batch Processing Throughput:**
-- 100 URLs: ~72,569 URLs/second
-- 1,000 URLs: ~56,233 URLs/second
-- 10,000 URLs: ~51,939 URLs/second
+- 100 URLs: ~6,047 URLs/second
+- 1,000 URLs: ~5,857 URLs/second
+- 10,000 URLs: ~5,271 URLs/second
 
-These metrics demonstrate production-grade performance suitable for high-throughput URL processing pipelines.
+These metrics reflect the current feature-rich parser, which performs URI parsing, auth extraction, query parsing, and domain extraction in a single pass.
 
 ## Optimizations Implemented
 
@@ -155,7 +155,7 @@ We leverage the battle-tested `public_suffix` gem for TLD parsing:
 
 We don't implement URL-level caching because:
 - URL variation is typically high (caching would have low hit rate)
-- Parsing is already fast enough (<30μs)
+- Parsing is already fast enough for most application workloads
 - Caching adds complexity and memory overhead
 - Consumers can implement application-specific caching if needed
 
@@ -175,9 +175,9 @@ This will output:
 ## Alignment with OpenSite ECOSYSTEM_GUIDELINES.md
 
 ### ✅ Performance-First
-- Sub-30μs parse times for typical URLs
-- 50,000+ URLs/sec throughput
+- Single-pass parsing with measured benchmark output documented in this file
 - Minimal memory allocations
+- Low-microsecond auth helper operations documented in `AUTH_PERFORMANCE_BENCHMARKS.md`
 
 ### ✅ Minimal Allocations
 - Frozen string constants throughout
@@ -250,13 +250,13 @@ Pre-filter suffix list lookups with a bloom filter.
 
 ## Conclusion
 
-The implemented optimizations achieve production-grade performance:
-- **50,000+ URLs/second** throughput
-- **Sub-30μs** parse times
+The implemented optimizations keep the parser production-ready while preserving the richer feature set added in recent releases:
+- **~5k-6k URLs/second** on the included benchmark for common workloads
+- **~173-279μs** full parse times for common absolute URLs
 - **<100KB** memory overhead
-- **100% test coverage** maintained
+- **100% test coverage** maintained in the current suite
 
-These metrics make the library suitable for high-throughput production use in URL processing pipelines, web crawlers, analytics systems, and other performance-critical applications within the OpenSite ecosystem.
+These metrics make the library suitable for production URL processing pipelines, analytics systems, and configuration parsing workloads where the additional extracted structure offsets the cost of a richer parse.
 
 ## Running Benchmarks
 

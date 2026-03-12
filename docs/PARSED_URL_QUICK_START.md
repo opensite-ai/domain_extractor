@@ -222,16 +222,18 @@ hash = result.to_h
 ## Error Handling
 
 ```ruby
-# parse() raises for invalid URLs
-begin
-  result = DomainExtractor.parse(url)
-rescue DomainExtractor::InvalidURLError
+# parse() returns an invalid ParsedURL object for invalid input
+result = DomainExtractor.parse(url)
+
+unless result.valid?
   # Handle invalid URL
 end
 
-# Or check validity first
-if DomainExtractor.valid?(url)
-  result = DomainExtractor.parse(url)
+# Or use strict parsing when you want an exception
+begin
+  result = DomainExtractor.parse!(url)
+rescue DomainExtractor::InvalidURLError
+  # Handle invalid URL
 end
 
 # Bang methods raise for missing components

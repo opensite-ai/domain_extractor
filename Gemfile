@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
+  gem 'benchmark', require: false
+  gem 'benchmark-ips', '~> 2.13', require: false
   gem 'rake', '~> 13.0'
   gem 'rspec', '~> 3.12'
   gem 'rubocop', '~> 1.50', require: false

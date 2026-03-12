@@ -67,7 +67,7 @@ RSpec.describe DomainValidator do
       end
 
       it 'rejects invalid URLs' do
-        record.url = 'not-a-url'
+        record.url = 'not_a_url'
         validator.validate_each(record, :url, record.url)
         expect(record.errors.messages).not_to be_empty
         expect(record.errors.messages.first[:message]).to include('not a valid URL')

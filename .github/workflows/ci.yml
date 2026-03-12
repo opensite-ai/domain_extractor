@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Only stable Ruby versions (3.3 is latest)
-        ruby-version: ["3.2", "3.3"]
+        # Only stable Ruby versions (3.4 is latest)
+        ruby-version: ["3.2", "3.3", "3.4"]
 
     steps:
       - uses: actions/checkout@v4
@@ -34,11 +34,11 @@ jobs:
 
       - name: Run RuboCop
         run: bundle exec rubocop
-        if: matrix.ruby-version == '3.3'
+        if: matrix.ruby-version == '3.4'
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: matrix.ruby-version == '3.3'
+        if: matrix.ruby-version == '3.4'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false

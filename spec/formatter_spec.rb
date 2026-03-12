@@ -247,7 +247,7 @@ RSpec.describe DomainExtractor::Formatter do
 
     context 'with invalid input' do
       it 'returns nil for invalid URLs' do
-        result = described_class.call('not-a-url')
+        result = described_class.call('not_a_url')
         expect(result).to be_nil
       end
 
@@ -292,7 +292,7 @@ RSpec.describe DomainExtractor do
     end
 
     it 'returns nil for invalid URLs' do
-      result = DomainExtractor.format('invalid-url')
+      result = DomainExtractor.format('invalid_url')
       expect(result).to be_nil
     end
   end
