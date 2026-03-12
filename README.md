@@ -1,8 +1,10 @@
 # DomainExtractor
 
-## A lightweight, robust Ruby library for url parsing and domain parsing with accurate multi-part TLD support. DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis. Used extensively throughout the [OpenSite AI platform](https://opensite.ai)
+## A lightweight, robust Ruby library for url parsing and domain parsing with accurate multi-part TLD support
 
-![Domain Extractor and Parsing Ruby Gem](https://github.com/user-attachments/assets/b3fbe605-3a3e-4d45-b0ed-b061a807d61b)
+> DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis. Used extensively throughout the [OpenSite AI platform](https://opensite.ai)
+
+![Domain Extractor and Parsing Ruby Gem](https://octane.cdn.ing/api/v1/images/transform?url=https://cdn.ing/assets/i/r/293719/d93szx2ighocy1lpu4nluhqqv8b0/banner-updated.png&f=webp)
 
 [![Gem Version](https://badge.fury.io/rb/domain_extractor.svg?v=020)](https://badge.fury.io/rb/domain_extractor)
 [![CI](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml)
