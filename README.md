@@ -1,30 +1,30 @@
-![Domain Extractor and Parsing Ruby Gem](https://github.com/user-attachments/assets/b3fbe605-3a3e-4d45-b0ed-b061a807d61b)
-
 # DomainExtractor
+
+## A lightweight, robust Ruby library for url parsing and domain parsing with accurate multi-part TLD support. DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis. Used extensively throughout the [OpenSite AI platform](https://opensite.ai)
+
+![Domain Extractor and Parsing Ruby Gem](https://github.com/user-attachments/assets/b3fbe605-3a3e-4d45-b0ed-b061a807d61b)
 
 [![Gem Version](https://badge.fury.io/rb/domain_extractor.svg?v=020)](https://badge.fury.io/rb/domain_extractor)
 [![CI](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml/badge.svg)](https://github.com/opensite-ai/domain_extractor/actions/workflows/ci.yml)
-
-A lightweight, robust Ruby library for url parsing and domain parsing with **accurate multi-part TLD support**. DomainExtractor delivers a high-throughput url parser and domain parser that excels at domain extraction tasks while staying friendly to analytics pipelines. Perfect for web scraping, analytics, url manipulation, query parameter parsing, and multi-environment domain analysis.
 
 Use **DomainExtractor** whenever you need a dependable tld parser for tricky multi-part tld registries or reliable subdomain extraction in production systems.
 
 ## Why DomainExtractor?
 
-✅ **URI-Compatible Accessors** - Covers common absolute-URL workflows with a Ruby `URI`-style API
-✅ **Authentication Extraction** - Parse credentials from Redis, database, FTP, and API URLs
-✅ **Accurate Multi-part TLD Parser** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
-✅ **Nested Subdomain Extraction** - Correctly parses multi-level subdomains (api.staging.example.com)
-✅ **Smart URL Normalization** - Automatically handles URLs with or without schemes
-✅ **Powerful URL Formatting** - Transform and standardize URLs with flexible options
-✅ **Rails Integration** - Custom ActiveModel validator for declarative URL validation
-✅ **Query Parameter Parsing** - Parse query strings into structured hashes
-✅ **Authentication Helpers** - Generate Basic Auth and Bearer token headers
-✅ **Batch Processing** - Parse multiple URLs efficiently
-✅ **IP Address Detection** - Identifies and handles IPv4 and IPv6 addresses
-✅ **Benchmark-Backed Performance** - Auth helpers run in low microseconds; full parses are documented in the included benchmark suite
-✅ **Zero Configuration** - Works out of the box with sensible defaults
-✅ **Well-Tested** - 200+ comprehensive test cases covering all scenarios
+- ✅ **URI-Compatible Accessors** - Covers common absolute-URL workflows with a Ruby `URI`-style API
+- ✅ **Authentication Extraction** - Parse credentials from Redis, database, FTP, and API URLs
+- ✅ **Accurate Multi-part TLD Parser** - Handles complex multi-part TLDs (co.uk, com.au, gov.br) using the [Public Suffix List](https://publicsuffix.org/)
+- ✅ **Nested Subdomain Extraction** - Correctly parses multi-level subdomains (api.staging.example.com)
+- ✅ **Smart URL Normalization** - Automatically handles URLs with or without schemes
+- ✅ **Powerful URL Formatting** - Transform and standardize URLs with flexible options
+- ✅ **Rails Integration** - Custom ActiveModel validator for declarative URL validation
+- ✅ **Query Parameter Parsing** - Parse query strings into structured hashes
+- ✅ **Authentication Helpers** - Generate Basic Auth and Bearer token headers
+- ✅ **Batch Processing** - Parse multiple URLs efficiently
+- ✅ **IP Address Detection** - Identifies and handles IPv4 and IPv6 addresses
+- ✅ **Benchmark-Backed Performance** - Auth helpers run in low microseconds; full parses are documented in the included benchmark suite
+- ✅ **Zero Configuration** - Works out of the box with sensible defaults
+- ✅ **Well-Tested** - 200+ comprehensive test cases covering all scenarios
 
 ## Installation
 
@@ -43,7 +43,7 @@ $ bundle install
 Or install it yourself:
 
 ```bash
-$ gem install domain_extractor
+gem install domain_extractor
 ```
 
 ## Quick Start
@@ -1311,7 +1311,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/opensi
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+BSD 3-Clause
 
 ## Acknowledgments
 
